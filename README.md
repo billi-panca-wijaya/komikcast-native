@@ -1,37 +1,31 @@
-# Juju Manhwa 2.0
+# Komikcast
 
-Platform baca manhwa/komik modern yang dibangun dengan React dan Vite.
+Platform baca komik/manhwa online modern, gratis tanpa iklan. Dibangun dengan React dan Vite.
 
 ## 🚀 Teknologi
 
-- **Framework**: React
-- **Build Tool**: Vite
-- **Package Manager**: npm/yarn/pnpm
-- **HMR**: Hot Module Replacement untuk pengembangan yang cepat
+- **Framework**: React 19
+- **Build Tool**: Vite 7
+- **Styling**: TailwindCSS
+- **Backend**: Express.js + SQLite
+- **SEO**: react-helmet-async
 
-## 🔌 Plugin Vite
+## ✨ Fitur
 
-Template ini menggunakan salah satu dari dua plugin oficial React:
-
-- **[@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react)** - Menggunakan [Babel](https://babeljs.io/) untuk Fast Refresh
-- **[@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc)** - Menggunakan [SWC](https://swc.rs/) untuk Fast Refresh
-
-## 📚 API & Resources
-
-**Comic API**: [https://www.sankavollerei.com/comic](https://www.sankavollerei.com/comic)
-
-## 🔗 Project History
-
-- **Original Source**: [Rhakelino/juju-manhwa-2.0](https://github.com/Rhakelino/juju-manhwa-2.0)
-- **First Recode**: [idlanyor/manhwa](https://github.com/idlanyor/manhwa)
-- **Latest Version**: [SankaVollereii/juju-manhwa-2.0](https://github.com/SankaVollereii/juju-manhwa-2.0)
+- 📖 Baca komik gratis tanpa iklan
+- 🔍 Pencarian komik real-time
+- 📱 Responsive design (mobile-friendly)
+- 🌙 Dark mode
+- 📊 Statistik pengunjung
+- 🔔 Google Instant Indexing API
+- 💾 Riwayat baca tersimpan lokal
 
 ## 📦 Instalasi
 
 ```sh
 # Clone repository
-git clone https://github.com/SankaVollereii/juju-manhwa-2.0.git
-cd juju-manhwa-2.0
+git clone https://github.com/YourUsername/komikcast.git
+cd komikcast
 
 # Install dependencies
 npm install
@@ -40,8 +34,14 @@ npm install
 ## 🛠️ Development
 
 ```sh
-# Menjalankan development server
+# Menjalankan frontend development server
 npm run dev
+
+# Menjalankan backend server
+npm run server
+
+# Menjalankan keduanya bersamaan
+npm run dev:all
 ```
 
 ## 🏗️ Build
@@ -54,18 +54,52 @@ npm run build
 npm run preview
 ```
 
-## ⚙️ ESLint Configuration
+## 📁 Struktur Project
 
-Untuk aplikasi production, disarankan menggunakan TypeScript dengan type-aware lint rules. Lihat [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) untuk informasi cara mengintegrasikan TypeScript dan [typescript-eslint](https://typescript-eslint.io) ke dalam project Anda.
+```
+komikcast/
+├── src/                  # Frontend React
+│   ├── components/       # Komponen UI
+│   ├── Pages/           # Halaman
+│   ├── contexts/        # React contexts
+│   └── hooks/           # Custom hooks
+├── server/              # Backend Express
+│   ├── index.js         # API endpoints
+│   ├── indexing.js      # Google Indexing API
+│   └── db.js            # Database SQLite
+└── public/              # Static assets
+```
 
-## 🤝 Contributing
+## 🔌 API Endpoints
 
-Open Kontribusi, issues, dan feature requests!
+### Statistics
+
+- `POST /api/track` - Track page view
+- `GET /api/stats/overview` - Get statistics overview
+- `GET /api/stats/daily` - Get daily views
+- `GET /api/stats/popular` - Get popular pages
+
+### Google Indexing
+
+- `POST /api/indexing/submit` - Submit URL for indexing
+- `POST /api/indexing/batch` - Submit multiple URLs
+- `POST /api/indexing/auto` - Auto-index new chapter
+
+## ⚙️ Konfigurasi
+
+Buat file `server/.env` dengan:
+
+```env
+PORT=8062
+INDEXING_ADMIN_KEY=your-secret-key
+GOOGLE_CLIENT_EMAIL=your-service-account@project.iam.gserviceaccount.com
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+```
 
 ## 👨‍💻 Credits
 
-**Latest Maintainer**: [SankaVollerei](https://github.com/SankaVollereii)
+**Maintainer**: Penjaga Bumi
 
-Special thanks to [Rhakelino](https://github.com/Rhakelino) dan [idlanyor](https://github.com/idlanyor) untuk versi sebelumnya.
-# komikcast
-# komikcast
+## 📄 License
+
+All rights reserved © Komikcast

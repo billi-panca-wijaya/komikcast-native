@@ -25,9 +25,10 @@ const app = express();
 
 // Enable CORS
 const allowedOrigins = [
-  'http://45.127.34.136:5173',
-  'https://backend-comic.antidonasi.web.id',
-  'https://juju-manhwa-2-0.vercel.app'
+  'http://localhost:5173',
+  'https://komikcast.co.id',
+  'https://www.komikcast.co.id',
+  'https://backend-comic.antidonasi.web.id'
 ];
 
 app.use(cors({
