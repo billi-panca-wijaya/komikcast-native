@@ -1,4 +1,4 @@
-# 🚀 Performance Optimization Guide - Kanata-Toon
+# 🚀 Performance Optimization Guide - Komikcast
 
 ## 📊 Target Core Web Vitals
 

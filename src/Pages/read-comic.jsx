@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -21,7 +21,9 @@ const ReadComic = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [scrollProgress, setScrollProgress] = useState(0);
+    // eslint-disable-next-line no-unused-vars
     const [currentChapters, setCurrentChapters] = useState([]);
+    // eslint-disable-next-line no-unused-vars
     const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
     const [navigation, setNavigation] = useState({
         previousChapter: null,
@@ -29,8 +31,14 @@ const ReadComic = () => {
     });
     const [isFullscreen, setIsFullscreen] = useState(false);
     const comicContainerRef = useRef(null);
+    
+    // Reader UI visibility states
+    const [isUIVisible, setIsUIVisible] = useState(true);
+    const [lastScrollY, setLastScrollY] = useState(0);
+    const [manualOverride, setManualOverride] = useState(false);
+    const manualOverrideTimeoutRef = useRef(null);
 
-    const saveHistory = (comicData) => {
+    const saveHistory = useCallback((comicData) => {
         try {
             const history = JSON.parse(localStorage.getItem('comicHistory')) || {};
             
@@ -47,7 +55,7 @@ const ReadComic = () => {
         } catch (e) {
             console.error("Error saving history to local storage", e);
         }
-    };
+    }, [slug, chapterSlug, comicDetailState]);
 
     useEffect(() => {
         const fetchChapterPages = async () => {
@@ -104,7 +112,57 @@ const ReadComic = () => {
         };
 
         fetchChapterPages();
-    }, [chapterLink, chapterNumber]);
+    }, [chapterLink, chapterNumber, comicTitle, saveHistory]);
+
+    // Helper function to extract clean chapter number from API slug
+    const extractChapterNumber = (apiSlug) => {
+        if (!apiSlug) return null;
+        
+        // Try to match patterns like:
+        // "comic-name-chapter-30" -> "30"
+        // "comic-name-chapter-30.5" -> "30.5"
+        // "chapter-30" -> "30"
+        const chapterMatch = apiSlug.match(/chapter[- ]?(\d+(?:\.\d+)?)/i);
+        if (chapterMatch) {
+            return chapterMatch[1];
+        }
+        
+        // Fallback: get the last number in the string
+        const numbers = apiSlug.match(/\d+(?:\.\d+)?/g);
+        if (numbers && numbers.length > 0) {
+            return numbers[numbers.length - 1];
+        }
+        
+        return null;
+    };
+
+    // Scroll handler for UI visibility
+    const handleScrollVisibility = useCallback(() => {
+        if (manualOverride) return;
+        
+        const container = isFullscreen ? comicContainerRef.current : document.documentElement;
+        if (!container) return;
+
+        const currentScrollY = container.scrollTop;
+        const scrollHeight = container.scrollHeight;
+        const clientHeight = container.clientHeight;
+        const isAtBottom = currentScrollY + clientHeight >= scrollHeight - 100; // 100px threshold
+        const isAtTop = currentScrollY < 50;
+        const isScrollingDown = currentScrollY > lastScrollY;
+        
+        if (isAtBottom || isAtTop) {
+            // Show UI when at top or bottom
+            setIsUIVisible(true);
+        } else if (isScrollingDown && currentScrollY > 100) {
+            // Hide UI when scrolling down (after scrolling past 100px)
+            setIsUIVisible(false);
+        } else if (!isScrollingDown && currentScrollY < lastScrollY - 50) {
+            // Show UI when scrolling up significantly
+            setIsUIVisible(true);
+        }
+        
+        setLastScrollY(currentScrollY);
+    }, [isFullscreen, lastScrollY, manualOverride]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -115,11 +173,14 @@ const ReadComic = () => {
             const height = container.scrollHeight - container.clientHeight;
             const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
             setScrollProgress(scrolled);
+            
+            // Handle UI visibility
+            handleScrollVisibility();
         };
 
         const scrollableElement = isFullscreen ? comicContainerRef.current : window;
         if (scrollableElement) {
-            scrollableElement.addEventListener('scroll', handleScroll);
+            scrollableElement.addEventListener('scroll', handleScroll, { passive: true });
         }
 
         return () => {
@@ -127,7 +188,7 @@ const ReadComic = () => {
                 scrollableElement.removeEventListener('scroll', handleScroll);
             }
         };
-    }, [isFullscreen]);
+    }, [isFullscreen, handleScrollVisibility]);
 
     useEffect(() => {
         const handleFullscreenChange = () => {
@@ -141,6 +202,15 @@ const ReadComic = () => {
         };
     }, []);
 
+    // Cleanup manual override timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (manualOverrideTimeoutRef.current) {
+                clearTimeout(manualOverrideTimeoutRef.current);
+            }
+        };
+    }, []);
+
     const toggleFullscreen = () => {
         if (!document.fullscreenElement) {
             comicContainerRef.current.requestFullscreen();
@@ -149,6 +219,27 @@ const ReadComic = () => {
                 document.exitFullscreen();
             }
         }
+    };
+
+    // Toggle UI visibility on tap/click
+    const handleReadingAreaClick = (e) => {
+        // Don't toggle if clicking on buttons, links, or other interactive elements
+        if (e.target.closest('button') || e.target.closest('a') || e.target.closest('[role="button"]')) {
+            return;
+        }
+        
+        setIsUIVisible(prev => !prev);
+        setManualOverride(true);
+        
+        // Clear any existing timeout
+        if (manualOverrideTimeoutRef.current) {
+            clearTimeout(manualOverrideTimeoutRef.current);
+        }
+        
+        // Reset manual override after 3 seconds to allow scroll behavior to take over again
+        manualOverrideTimeoutRef.current = setTimeout(() => {
+            setManualOverride(false);
+        }, 3000);
     };
 
     const handleBack = () => {
@@ -160,10 +251,15 @@ const ReadComic = () => {
     const handleNextChapter = () => {
         const nextChapterSlug = navigation.nextChapter;
         if (nextChapterSlug) {
-            // Extract chapter number from API response
-            // Handle formats like "apocalyptic-chef-awakening-chapter-30" -> "30"
-            const chapterMatch = nextChapterSlug.match(/chapter[- ]?(.+)$/i);
-            const newChapterNumber = chapterMatch ? chapterMatch[1] : nextChapterSlug.split('-').pop();
+            // Extract clean chapter number from API response
+            const newChapterNumber = extractChapterNumber(nextChapterSlug);
+            
+            if (!newChapterNumber) {
+                console.error('Could not extract chapter number from:', nextChapterSlug);
+                return;
+            }
+            
+            // Format chapterSlug consistently as "chapter-{number}"
             const formattedChapterSlug = `chapter-${newChapterNumber}`;
             
             // Format chapterLink for API call (needs leading and trailing slashes)
@@ -171,7 +267,7 @@ const ReadComic = () => {
             
             navigate(`/read-comic/${slug}/${formattedChapterSlug}`, { 
                 state: { 
-                    chapterLink: apiChapterLink, // Formatted for API calls
+                    chapterLink: apiChapterLink,
                     comicTitle: comicTitle, 
                     chapterNumber: newChapterNumber,
                     comicDetailState: comicDetailState
@@ -183,10 +279,15 @@ const ReadComic = () => {
     const handlePrevChapter = () => {
         const prevChapterSlug = navigation.previousChapter;
         if (prevChapterSlug) {
-            // Extract chapter number from API response
-            // Handle formats like "apocalyptic-chef-awakening-chapter-30" -> "30"
-            const chapterMatch = prevChapterSlug.match(/chapter[- ]?(.+)$/i);
-            const newChapterNumber = chapterMatch ? chapterMatch[1] : prevChapterSlug.split('-').pop();
+            // Extract clean chapter number from API response
+            const newChapterNumber = extractChapterNumber(prevChapterSlug);
+            
+            if (!newChapterNumber) {
+                console.error('Could not extract chapter number from:', prevChapterSlug);
+                return;
+            }
+            
+            // Format chapterSlug consistently as "chapter-{number}"
             const formattedChapterSlug = `chapter-${newChapterNumber}`;
 
             // Format chapterLink for API call (needs leading and trailing slashes)
@@ -194,7 +295,7 @@ const ReadComic = () => {
 
             navigate(`/read-comic/${slug}/${formattedChapterSlug}`, { 
                 state: { 
-                    chapterLink: apiChapterLink, // Formatted for API calls
+                    chapterLink: apiChapterLink,
                     comicTitle: comicTitle, 
                     chapterNumber: newChapterNumber,
                     comicDetailState: comicDetailState 
@@ -241,7 +342,10 @@ const ReadComic = () => {
     const hasPrev = !!navigation.previousChapter;
 
     return (
-        <div ref={comicContainerRef} className={`relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#121212] dark:to-[#1a1a1a] min-h-screen transition-colors ${isFullscreen ? 'overflow-y-auto' : ''}`}>
+        <div 
+            ref={comicContainerRef} 
+            className={`relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#121212] dark:to-[#1a1a1a] min-h-screen transition-colors ${isFullscreen ? 'overflow-y-auto' : ''}`}
+        >
             <SEO 
                 title={`Baca Komik ${comicTitle} Chapter ${chapterNumber} Bahasa Indonesia`}
                 description={`Baca manhwa/komik ${comicTitle} Chapter ${chapterNumber} bahasa Indonesia gratis dan berkualitas tinggi di Komikcast.`}
@@ -249,38 +353,46 @@ const ReadComic = () => {
                 url={`https://komikcast.co.id/read-comic/${slug}/${chapterSlug}`}
                 keywords={`baca komik ${comicTitle}, ${comicTitle} chapter ${chapterNumber}, komikcast ${comicTitle}`}
             />
-            {/* Top Navigation Bar */}
-            <div className={`fixed top-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg z-50 border-b border-gray-200 dark:border-gray-800 transition-all ${isFullscreen ? 'hidden' : 'block'}`}>
+            
+            {/* Top Navigation Bar - Auto-hide on scroll */}
+            <div 
+                className={`fixed top-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg z-50 border-b border-gray-200 dark:border-gray-800 transition-all duration-300 ${
+                    isFullscreen ? 'hidden' : ''
+                } ${
+                    isUIVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+                }`}
+            >
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
+                    <div className="flex justify-between items-center h-14 sm:h-16">
                         {/* Back Button */}
                         <button
                             onClick={handleBack}
-                            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors font-semibold"
+                            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors font-semibold p-2 -ml-2"
                         >
                             <FontAwesomeIcon icon={faArrowLeft} />
                             <span className="hidden sm:inline">Kembali</span>
                         </button>
 
                         {/* Title */}
-                        <div className="flex items-center gap-2 flex-1 justify-center mx-4">
-                            <FontAwesomeIcon icon={faBookOpen} className="text-indigo-600 dark:text-indigo-400 hidden sm:inline" />
-                            <h2 className="text-sm md:text-base font-bold text-center truncate text-gray-900 dark:text-white">
-                                {comicTitle} - <span className="text-indigo-600 dark:text-indigo-400">{chapterNumber || 'Unknown'}</span>
+                        <div className="flex items-center gap-2 flex-1 justify-center mx-2 sm:mx-4 min-w-0">
+                            <FontAwesomeIcon icon={faBookOpen} className="text-indigo-600 dark:text-indigo-400 hidden sm:inline flex-shrink-0" />
+                            <h2 className="text-xs sm:text-sm md:text-base font-bold text-center truncate text-gray-900 dark:text-white">
+                                <span className="hidden sm:inline">{comicTitle} - </span>
+                                <span className="text-indigo-600 dark:text-indigo-400">Ch. {chapterNumber || 'Unknown'}</span>
                             </h2>
                         </div>
 
                         {/* Right Buttons */}
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 sm:gap-4">
                             <button
                                 onClick={toggleFullscreen}
-                                className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                                className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors p-2"
                             >
                                 <FontAwesomeIcon icon={faExpand} />
                             </button>
                             <button
                                 onClick={() => navigate('/')}
-                                className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                                className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors p-2"
                             >
                                 <FontAwesomeIcon icon={faHome} />
                             </button>
@@ -297,8 +409,11 @@ const ReadComic = () => {
                 </div>
             </div>
 
-            {/* Comic Pages */}
-            <div className={`pt-[68px] pb-24 ${isFullscreen ? 'pt-0' : ''}`}>
+            {/* Comic Pages - Clickable to toggle UI */}
+            <div 
+                className={`pb-24 ${isFullscreen ? 'pt-0' : ''} ${isUIVisible ? 'pt-[72px] sm:pt-[76px]' : 'pt-4'}`}
+                onClick={handleReadingAreaClick}
+            >
                 <div className="max-w-4xl mx-auto">
                     {pages.map((page, index) => (
                         <div key={index} className="relative">
@@ -316,15 +431,21 @@ const ReadComic = () => {
                 </div>
             </div>
 
-            {/* Bottom Navigation Bar */}
-            <div className={`fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-2xl z-50 border-t border-gray-200 dark:border-gray-800 transition-all ${isFullscreen ? 'hidden' : 'block'}`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px8">
-                    <div className="flex justify-between items-center py-4 gap-4">
+            {/* Bottom Navigation Bar - Auto-hide on scroll */}
+            <div 
+                className={`fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-2xl z-50 border-t border-gray-200 dark:border-gray-800 transition-all duration-300 ${
+                    isFullscreen ? 'hidden' : ''
+                } ${
+                    isUIVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+                }`}
+            >
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center py-3 sm:py-4 gap-2 sm:gap-4">
                         {/* Previous Chapter Button */}
                         <button
                             onClick={handlePrevChapter}
                             disabled={!hasPrev}
-                            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                            className={`flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold transition-all duration-300 text-sm sm:text-base ${
                                 hasPrev
                                     ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 shadow-lg hover:shadow-indigo-500/50 hover:scale-105'
                                     : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-600 cursor-not-allowed'
@@ -335,15 +456,15 @@ const ReadComic = () => {
                         </button>
 
                         {/* Chapter Info */}
-                        <div className="text-center">
-                            <p className="text-lg font-bold text-gray-900 dark:text-white">{chapterNumber}</p>
+                        <div className="text-center min-w-0">
+                            <p className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white truncate">Ch. {chapterNumber}</p>
                         </div>
 
                         {/* Next Chapter Button */}
                         <button
                             onClick={handleNextChapter}
                             disabled={!hasNext}
-                            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                            className={`flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold transition-all duration-300 text-sm sm:text-base ${
                                 hasNext
                                     ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 shadow-lg hover:shadow-indigo-500/50 hover:scale-105'
                                     : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-600 cursor-not-allowed'
@@ -355,6 +476,13 @@ const ReadComic = () => {
                     </div>
                 </div>
             </div>
+            
+            {/* Tap hint - shows briefly when UI is hidden */}
+            {!isUIVisible && !isFullscreen && (
+                <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full animate-pulse z-40">
+                    Tap to show controls
+                </div>
+            )}
         </div>
     );
 };

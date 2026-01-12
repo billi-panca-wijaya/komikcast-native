@@ -21,6 +21,7 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
+    "googleapis": "^144.0.0",
     "react": "^19.1.9",
     "react-dom": "^19.1.9",
     "react-helmet-async": "^2.0.5",

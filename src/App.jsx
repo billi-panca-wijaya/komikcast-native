@@ -1,5 +1,5 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+// React is automatically imported with the new JSX transform
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -23,10 +23,15 @@ import FAQ from './Pages/FAQ'
 function AppContent() {
   // Track page views
   usePageTracking()
+  
+  // Get current location to check if we're on the reader page
+  const location = useLocation()
+  const isReaderPage = location.pathname.startsWith('/read-comic/')
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      {/* Hide Navbar on reader page - reader has its own fixed header */}
+      {!isReaderPage && <Navbar />}
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -47,7 +52,8 @@ function AppContent() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-      <Footer />
+      {/* Hide Footer on reader page - reader has its own fixed footer */}
+      {!isReaderPage && <Footer />}
     </div>
   )
 }
