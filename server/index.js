@@ -20,12 +20,6 @@ import {
   getUrlIndexingStatus,
   INDEXING_TYPES
 } from './indexing.js';
-import {
-  generateSitemapIndex,
-  generateStaticSitemap,
-  generateComicsSitemap,
-  clearSitemapCache
-} from './sitemap.js';
 
 const app = express();
 
@@ -155,47 +149,6 @@ app.get('/api/stats/country', (req, res) => {
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-// ============================================
-// Dynamic Sitemap Endpoints
-// ============================================
-
-// Sitemap index (points to child sitemaps)
-app.get('/api/sitemap.xml', (req, res) => {
-  res.set('Content-Type', 'application/xml');
-  res.send(generateSitemapIndex(req));
-});
-
-// Static pages sitemap
-app.get('/api/sitemap-static.xml', (req, res) => {
-  res.set('Content-Type', 'application/xml');
-  res.send(generateStaticSitemap());
-});
-
-// Comics sitemap (dynamic, fetched from API)
-app.get('/api/sitemap-comics.xml', async (req, res) => {
-  try {
-    res.set('Content-Type', 'application/xml');
-    const sitemap = await generateComicsSitemap();
-    res.send(sitemap);
-  } catch (error) {
-    console.error('Error generating comics sitemap:', error);
-    res.status(500).send('Error generating sitemap');
-  }
-});
-
-// Clear sitemap cache (admin only)
-app.post('/api/sitemap/clear-cache', (req, res) => {
-  const apiKey = req.headers['x-admin-key'] || req.query.key;
-  const validKey = process.env.INDEXING_ADMIN_KEY;
-  
-  if (apiKey !== validKey) {
-    return res.status(401).json({ success: false, error: 'Unauthorized' });
-  }
-  
-  clearSitemapCache();
-  res.json({ success: true, message: 'Sitemap cache cleared' });
 });
 
 // ============================================
