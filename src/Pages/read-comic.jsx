@@ -411,7 +411,7 @@ const ReadComic = () => {
 
             {/* Comic Pages - Clickable to toggle UI */}
             <div 
-                className={`pb-24 ${isFullscreen ? 'pt-0' : ''} ${isUIVisible ? 'pt-[72px] sm:pt-[76px]' : 'pt-4'}`}
+                className={`pb-24 ${isFullscreen ? 'pt-0' : 'pt-[72px] sm:pt-[76px]'}`}
                 onClick={handleReadingAreaClick}
             >
                 <div className="max-w-4xl mx-auto">
