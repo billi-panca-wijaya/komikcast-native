@@ -17,6 +17,8 @@ const Home = () => {
         url="https://komikcast.co.id/"
       />
       <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#0d1117] dark:to-[#0a0a0a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
+      {/* SEO: Hidden H1 for screen readers and crawlers */}
+      <h1 className="sr-only">Komikcast - Baca Komik Online Bahasa Indonesia Gratis Tanpa Iklan</h1>
       {/* Background decorative elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-900/20 rounded-full blur-3xl"></div>

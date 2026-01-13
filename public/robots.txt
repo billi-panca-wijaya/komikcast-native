@@ -4,8 +4,8 @@
 User-agent: *
 Allow: /
 
-# Sitemap
-Sitemap: https://komikcast.co.id/sitemap.xml
+# Sitemap - Dynamic sitemap generated from API
+Sitemap: https://backend-comic.antidonasi.web.id/api/sitemap.xml
 
 # Crawl-delay
 Crawl-delay: 1

@@ -116,9 +116,9 @@ const TerbaruPage = () => {
                             <div className="flex items-center gap-3 mb-8">
                                 <div className="flex items-center gap-2">
                                     <div className="w-1 h-8 bg-gradient-to-b from-blue-700 to-teal-500 rounded-full"></div>
-                                    <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-teal-500 bg-clip-text text-transparent">
-                                        Terbaru Hari Ini
-                                    </h2>
+                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-teal-500 bg-clip-text text-transparent">
+                                        Komik Terbaru Hari Ini
+                                    </h1>
                                 </div>
                                 <div className="flex-1 h-px bg-gradient-to-r from-gray-300 dark:from-gray-700 to-transparent"></div>
                             </div>
@@ -167,9 +167,9 @@ const TerbaruPage = () => {
                         <div className="flex items-center gap-3 mb-6">
                             <div className="flex items-center gap-2">
                                 <div className="w-1 h-8 bg-gradient-to-b from-blue-700 to-teal-500 rounded-full animate-pulse"></div>
-                                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-teal-500 bg-clip-text text-transparent">
-                                    Terbaru Hari Ini
-                                </h2>
+                                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-teal-500 bg-clip-text text-transparent">
+                                    Komik Terbaru Hari Ini
+                                </h1>
                             </div>
                             <svg className="w-6 h-6 text-green-500 animate-bounce" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd"/>
