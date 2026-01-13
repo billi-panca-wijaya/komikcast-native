@@ -1,26 +1,39 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import SkeletonLoader from '../components/SkeletonLoader'
 import SEO from '../components/SEO'
 import GenreList from '../components/GenreList'
 
+const COMICS_PER_PAGE = 15
+const API_PAGES_PER_VIEW = 2 // Fetch 2 API pages per view page
+
 const TerbaruPage = () => {
     const [comics, setComics] = useState([])
     const [loading, setLoading] = useState(true)
+    const [isPageLoading, setIsPageLoading] = useState(false)
     const [error, setError] = useState(null)
     const [searchQuery, setSearchQuery] = useState('')
     const [hoveredSidebar, setHoveredSidebar] = useState(null)
+    const [currentPage, setCurrentPage] = useState(1)
+    const [hasMorePages, setHasMorePages] = useState(true)
+    const [animationKey, setAnimationKey] = useState(0) // Reset animations on page change
 
     const navigate = useNavigate()
 
-    const fetchComics = async () => {
+    const fetchComicsForPage = useCallback(async (page) => {
         try {
-            // Fetch multiple pages for more comics
-            const pages = [1, 2, 3, 4, 5, 6, 7, 8]
+            // Calculate which API pages to fetch
+            // Page 1 → API pages 1-2, Page 2 → API pages 3-4, etc.
+            const startApiPage = (page - 1) * API_PAGES_PER_VIEW + 1
+            const apiPages = Array.from(
+                { length: API_PAGES_PER_VIEW }, 
+                (_, i) => startApiPage + i
+            )
+
             const responses = await Promise.all(
-                pages.map(page => 
-                    axios.get(`https://www.sankavollerei.com/comic/terbaru?page=${page}`)
+                apiPages.map(apiPage => 
+                    axios.get(`https://www.sankavollerei.com/comic/terbaru?page=${apiPage}`)
                         .catch(() => ({ data: { comics: [] } }))
                 )
             )
@@ -59,19 +72,57 @@ const TerbaruPage = () => {
                 }
             })
 
-            setComics(processedComics.slice(0, 30))
-            setLoading(false)
+            // Check if there are more pages
+            const hasMore = processedComics.length >= COMICS_PER_PAGE
+            setHasMorePages(hasMore)
+
+            // Return limited comics for display
+            return processedComics.slice(0, COMICS_PER_PAGE)
 
         } catch (err) {
-            setError(err)
-            setLoading(false)
             console.error("Error fetching terbaru comics:", err)
+            throw err
+        }
+    }, [])
+
+    // Initial load
+    useEffect(() => {
+        const loadInitialComics = async () => {
+            try {
+                setLoading(true)
+                const initialComics = await fetchComicsForPage(1)
+                setComics(initialComics)
+                setLoading(false)
+            } catch (err) {
+                setError(err)
+                setLoading(false)
+            }
+        }
+        loadInitialComics()
+    }, [fetchComicsForPage])
+
+    // Handle page change
+    const handlePageChange = async (newPage) => {
+        if (isPageLoading) return
+        if (newPage < 1) return
+        if (newPage > currentPage && !hasMorePages) return
+
+        setIsPageLoading(true)
+        
+        // Smooth scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+
+        try {
+            const newComics = await fetchComicsForPage(newPage)
+            setComics(newComics)
+            setCurrentPage(newPage)
+            setAnimationKey(prev => prev + 1) // Trigger re-animation
+        } catch (err) {
+            console.error("Error changing page:", err)
+        } finally {
+            setIsPageLoading(false)
         }
     }
-
-    useEffect(() => {
-        fetchComics()
-    }, [])
 
     const handleComicDetail = (comic) => {
         navigate(`/detail-comic/${comic.slug}`, { 
@@ -94,8 +145,74 @@ const TerbaruPage = () => {
         comic.title.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
-    // Sidebar comics
-    const sidebarComics = filteredComics.slice(0, 10)
+    // Sidebar comics (only from current page when not searching)
+    const sidebarComics = searchQuery ? filteredComics.slice(0, 10) : comics.slice(0, 10)
+
+    // Pagination Button Component
+    const PaginationButton = ({ direction, onClick, disabled }) => {
+        const isNext = direction === 'next'
+        
+        return (
+            <button
+                onClick={onClick}
+                disabled={disabled || isPageLoading}
+                className={`
+                    group relative flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm
+                    transition-all duration-300 ease-out
+                    ${disabled || isPageLoading
+                        ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed opacity-50'
+                        : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg hover:shadow-xl hover:shadow-indigo-500/30 hover:scale-105 active:scale-95'
+                    }
+                `}
+            >
+                {/* Shimmer effect on hover */}
+                {!disabled && !isPageLoading && (
+                    <span className="absolute inset-0 rounded-xl overflow-hidden">
+                        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                    </span>
+                )}
+                
+                {!isNext && (
+                    <svg 
+                        className={`w-5 h-5 transition-transform duration-300 ${!disabled && !isPageLoading ? 'group-hover:-translate-x-1' : ''}`}
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                )}
+                
+                <span className="relative z-10">
+                    {isPageLoading 
+                        ? 'Loading...' 
+                        : isNext ? 'Selanjutnya' : 'Sebelumnya'
+                    }
+                </span>
+                
+                {isNext && (
+                    <svg 
+                        className={`w-5 h-5 transition-transform duration-300 ${!disabled && !isPageLoading ? 'group-hover:translate-x-1' : ''}`}
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                )}
+            </button>
+        )
+    }
+
+    // Loading Spinner for page transitions
+    const LoadingOverlay = () => (
+        <div className="absolute inset-0 bg-white/50 dark:bg-black/50 backdrop-blur-sm rounded-xl flex items-center justify-center z-20 transition-opacity duration-300">
+            <div className="flex flex-col items-center gap-3">
+                <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Memuat komik...</span>
+            </div>
+        </div>
+    )
 
     if (loading) {
         return (
@@ -122,7 +239,7 @@ const TerbaruPage = () => {
                                 </div>
                                 <div className="flex-1 h-px bg-gradient-to-r from-gray-300 dark:from-gray-700 to-transparent"></div>
                             </div>
-                            <SkeletonLoader count={24} type="card" />
+                            <SkeletonLoader count={COMICS_PER_PAGE} type="card" />
                         </div>
                     </div>
                 </div>
@@ -175,7 +292,7 @@ const TerbaruPage = () => {
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd"/>
                             </svg>
                             <span className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-full">
-                                ✨ {comics.length} Komik
+                                ✨ Halaman {currentPage}
                             </span>
                             <div className="flex-1 h-px bg-gradient-to-r from-gray-300 dark:from-gray-700 to-transparent"></div>
                         </div>
@@ -216,63 +333,135 @@ const TerbaruPage = () => {
                         <div className="flex flex-col lg:flex-row gap-8">
                             {/* Main Grid */}
                             <div className="flex-1">
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-                                    {filteredComics.map((comic, index) => (
-                                        <div
-                                            key={comic.title}
-                                            className="group relative bg-white/80 dark:bg-gradient-to-b dark:from-gray-800 dark:to-gray-900 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-300 dark:border-gray-700 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/20 hover:-translate-y-2 animate-fadeIn"
-                                            style={{ animationDelay: `${index * 30}ms` }}
-                                        >
-                                            {/* NEW Badge */}
-                                            {index < 10 && (
-                                                <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-pink-600 to-rose-600 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
-                                                    NEW
-                                                </div>
-                                            )}
+                                {/* Comic Grid with loading overlay */}
+                                <div className="relative min-h-[600px]">
+                                    {isPageLoading && <LoadingOverlay />}
+                                    
+                                    <div 
+                                        key={animationKey}
+                                        className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 transition-opacity duration-300 ${isPageLoading ? 'opacity-30' : 'opacity-100'}`}
+                                    >
+                                        {filteredComics.map((comic, index) => (
+                                            <div
+                                                key={`${comic.title}-${animationKey}`}
+                                                className="group relative bg-white/80 dark:bg-gradient-to-b dark:from-gray-800 dark:to-gray-900 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-300 dark:border-gray-700 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/20 hover:-translate-y-2 animate-fadeIn"
+                                                style={{ animationDelay: `${index * 50}ms` }}
+                                            >
+                                                {/* NEW Badge - show for first 5 on page 1 */}
+                                                {currentPage === 1 && index < 5 && (
+                                                    <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-pink-600 to-rose-600 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
+                                                        NEW
+                                                    </div>
+                                                )}
 
-                                            <div className="relative aspect-[2/3] overflow-hidden">
-                                                <img
-                                                    src={comic.image}
-                                                    alt={comic.title}
-                                                    width="300"
-                                                    height="450"
-                                                    loading={index < 10 ? "eager" : "lazy"}
-                                                    decoding="async"
-                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                                    onError={(e) => {
-                                                        e.target.src = 'https://via.placeholder.com/300x450?text=Comic+Cover'
-                                                    }}
-                                                />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                                <div className="absolute top-2 right-2 bg-gradient-to-r from-teal-600 to-teal-400 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1">
-                                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                                                        <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd"/>
-                                                    </svg>
-                                                    {comic.chapter}
+                                                <div className="relative aspect-[2/3] overflow-hidden">
+                                                    <img
+                                                        src={comic.image}
+                                                        alt={comic.title}
+                                                        width="300"
+                                                        height="450"
+                                                        loading={index < 5 ? "eager" : "lazy"}
+                                                        decoding="async"
+                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                        onError={(e) => {
+                                                            e.target.src = 'https://via.placeholder.com/300x450?text=Comic+Cover'
+                                                        }}
+                                                    />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                                    <div className="absolute top-2 right-2 bg-gradient-to-r from-teal-600 to-teal-400 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1">
+                                                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                                                            <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd"/>
+                                                        </svg>
+                                                        {comic.chapter}
+                                                    </div>
+                                                    <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                        <p className="text-xs text-gray-300">{comic.source}</p>
+                                                    </div>
                                                 </div>
-                                                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                    <p className="text-xs text-gray-300">{comic.source}</p>
+
+                                                <div className="p-4">
+                                                    <h3 className="font-bold text-sm md:text-base line-clamp-2 mb-3 text-gray-900 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-teal-400 transition-colors min-h-[2.5rem]">
+                                                        {comic.title}
+                                                    </h3>
+                                                    <button
+                                                        onClick={() => handleComicDetail(comic)}
+                                                        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2 rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-indigo-500/50 flex items-center justify-center gap-2"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                                        </svg>
+                                                        Baca Komik
+                                                    </button>
                                                 </div>
                                             </div>
-
-                                            <div className="p-4">
-                                                <h3 className="font-bold text-sm md:text-base line-clamp-2 mb-3 text-gray-900 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-teal-400 transition-colors min-h-[2.5rem]">
-                                                    {comic.title}
-                                                </h3>
-                                                <button
-                                                    onClick={() => handleComicDetail(comic)}
-                                                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2 rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-indigo-500/50 flex items-center justify-center gap-2"
-                                                >
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                                    </svg>
-                                                    Baca Komik
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
+
+                                {/* Pagination Controls */}
+                                {!searchQuery && (
+                                    <div className="mt-10 flex flex-col items-center gap-4">
+                                        {/* Page Indicator */}
+                                        <div className="flex items-center gap-3 px-6 py-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg">
+                                            <span className="text-sm text-gray-500 dark:text-gray-400">Halaman</span>
+                                            <span className="px-4 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg text-lg min-w-[3rem] text-center">
+                                                {currentPage}
+                                            </span>
+                                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                                                • {comics.length} komik ditampilkan
+                                            </span>
+                                        </div>
+
+                                        {/* Navigation Buttons */}
+                                        <div className="flex items-center gap-4">
+                                            <PaginationButton 
+                                                direction="prev"
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                disabled={currentPage === 1}
+                                            />
+                                            
+                                            {/* Quick page numbers for desktop */}
+                                            <div className="hidden md:flex items-center gap-2">
+                                                {[...Array(Math.min(5, currentPage + 2))].map((_, i) => {
+                                                    const pageNum = i + 1
+                                                    if (pageNum > currentPage + 2) return null
+                                                    return (
+                                                        <button
+                                                            key={pageNum}
+                                                            onClick={() => handlePageChange(pageNum)}
+                                                            disabled={isPageLoading}
+                                                            className={`
+                                                                w-10 h-10 rounded-lg font-semibold text-sm transition-all duration-300
+                                                                ${pageNum === currentPage 
+                                                                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg scale-110' 
+                                                                    : 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+                                                                }
+                                                                ${isPageLoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}
+                                                            `}
+                                                        >
+                                                            {pageNum}
+                                                        </button>
+                                                    )
+                                                })}
+                                                {currentPage < 10 && hasMorePages && (
+                                                    <span className="text-gray-400 dark:text-gray-500 px-2">...</span>
+                                                )}
+                                            </div>
+
+                                            <PaginationButton 
+                                                direction="next"
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                disabled={!hasMorePages}
+                                            />
+                                        </div>
+
+                                        {/* Mobile page info */}
+                                        <p className="md:hidden text-sm text-gray-500 dark:text-gray-400">
+                                            Geser untuk navigasi
+                                        </p>
+                                    </div>
+                                )}
 
                                 {/* No results */}
                                 {filteredComics.length === 0 && searchQuery && (
@@ -308,7 +497,7 @@ const TerbaruPage = () => {
                                                     <h3 className="text-lg font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
                                                         Baru Update
                                                     </h3>
-                                                    <p className="text-sm text-gray-400">10 Komik terbaru</p>
+                                                    <p className="text-sm text-gray-400">Halaman {currentPage}</p>
                                                 </div>
                                             </div>
                                             <div className="absolute top-2 right-4 w-2 h-2 bg-pink-400 rounded-full animate-ping"></div>
@@ -319,7 +508,7 @@ const TerbaruPage = () => {
                                         <div className="space-y-3">
                                             {sidebarComics.map((comic, index) => (
                                                 <div
-                                                    key={`sidebar-${comic.title}`}
+                                                    key={`sidebar-${comic.title}-${animationKey}`}
                                                     className={`group relative flex gap-4 p-3 rounded-xl border transition-all duration-500 cursor-pointer overflow-hidden ${
                                                         hoveredSidebar === index 
                                                             ? 'bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border-indigo-500/50 scale-105 shadow-xl shadow-indigo-500/20' 
@@ -367,13 +556,13 @@ const TerbaruPage = () => {
                                                     <div className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
                                                         {comics.length}
                                                     </div>
-                                                    <div className="text-xs text-gray-500 dark:text-gray-400">Total Baru</div>
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400">Komik Halaman Ini</div>
                                                 </div>
                                                 <div className="text-center p-3 rounded-xl bg-white/50 dark:bg-gray-700/50 hover:scale-105 transition-transform duration-300">
-                                                    <div className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent animate-pulse">
-                                                        LIVE
+                                                    <div className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
+                                                        {currentPage}
                                                     </div>
-                                                    <div className="text-xs text-gray-500 dark:text-gray-400">Update</div>
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400">Halaman</div>
                                                 </div>
                                             </div>
                                         </div>
