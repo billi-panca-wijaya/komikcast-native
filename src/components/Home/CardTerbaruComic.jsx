@@ -7,7 +7,7 @@ const CardTerbaruComic = () => {
     const [comics, setComics] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
-    const [displayCount] = useState(20) // Show 20 comics by default
+    const [displayCount] = useState(15) // Show 15 comics by default
     const [hoveredSidebar, setHoveredSidebar] = useState(null)
 
     const navigate = useNavigate()

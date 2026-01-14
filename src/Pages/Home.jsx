@@ -7,8 +7,8 @@ import CardTrendingComic from '../components/Home/CardTrendingComic'
 import GenreList from '../components/GenreList'
 import SEO from '../components/SEO'
 
-// Lazy load Hyperspeed for performance
-const Hyperspeed = lazy(() => import('../components/Hyperspeed'))
+// Lazy load GridScan for performance
+const GridScan = lazy(() => import('../components/GridScan'))
 
 const Home = () => {
   return (
@@ -20,39 +20,28 @@ const Home = () => {
         url="https://s1.komikcast00.co.id/"
       />
       <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#0d1117] dark:to-[#0a0a0a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
-      {/* Hyperspeed 3D Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+      {/* GridScan Background Effect */}
+      <div className="fixed inset-0 overflow-hidden z-0" style={{ pointerEvents: 'none' }}>
         <Suspense fallback={
           <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#0d1117] to-[#0a0a0a]" />
         }>
-          <Hyperspeed
-            effectOptions={{
-              distortion: 'turbulentDistortion',
-              length: 400,
-              roadWidth: 10,
-              islandWidth: 2,
-              lanesPerRoad: 3,
-              fov: 90,
-              fovSpeedUp: 150,
-              speedUp: 2,
-              carLightsFade: 0.4,
-              totalSideLightSticks: 20,
-              lightPairsPerRoadWay: 40,
-              colors: {
-                roadColor: 0x080808,
-                islandColor: 0x0a0a0a,
-                background: 0x000000,
-                shoulderLines: 0x131318,
-                brokenLines: 0x131318,
-                leftCars: [0x14b8a6, 0x0e7490, 0x06b6d4],
-                rightCars: [0x3b82f6, 0x1d4ed8, 0x6366f1],
-                sticks: 0x14b8a6
-              }
-            }}
-          />
+          <div style={{ width: '100%', height: '100%', pointerEvents: 'auto' }}>
+            <GridScan
+              sensitivity={0.55}
+              lineThickness={1}
+              linesColor="#0d3d3d"
+              gridScale={0.1}
+              scanColor="#14b8a6"
+              scanOpacity={0.5}
+              enablePost={true}
+              bloomIntensity={0.6}
+              chromaticAberration={0.002}
+              noiseIntensity={0.01}
+              scanDuration={2.5}
+              scanDelay={1.5}
+            />
+          </div>
         </Suspense>
-        {/* Overlay gradient for better readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent" />
       </div>
 
       {/* Content */}

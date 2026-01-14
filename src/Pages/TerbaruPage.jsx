@@ -6,7 +6,7 @@ import SEO from '../components/SEO'
 import GenreList from '../components/GenreList'
 
 const COMICS_PER_PAGE = 15
-const API_PAGES_PER_VIEW = 2 // Fetch 2 API pages per view page
+const API_PAGES_PER_VIEW = 3 // Fetch 3 API pages per view page to ensure 15 unique comics
 
 const TerbaruPage = () => {
     const [comics, setComics] = useState([])
