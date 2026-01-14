@@ -22,6 +22,7 @@ import FAQ from './Pages/FAQ'
 import useDevToolsProtection from './hooks/useDevToolsProtection'
 import BanScreen from './components/BanScreen'
 import WarningToast from './components/WarningToast'
+import AntigravityBackground from './components/AntigravityBackground'
 
 function AppContent() {
   // Track page views
@@ -33,6 +34,8 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Antigravity particle background - hide on reader page for clean reading */}
+      {!isReaderPage && <AntigravityBackground />}
       {/* Hide Navbar on reader page - reader has its own fixed header */}
       {!isReaderPage && <Navbar />}
       <main className="flex-1">

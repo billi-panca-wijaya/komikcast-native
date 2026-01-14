@@ -16,6 +16,7 @@
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@fortawesome/react-fontawesome": "^3.1.0",
+    "@react-three/fiber": "^9.5.0",
     "axios": "^1.13.2",
     "better-sqlite3": "^12.4.1",
     "cors": "^2.8.5",
