@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import TurnstileWidget from './TurnstileWidget';
 import './BanScreen.css';
 
 /**
@@ -10,6 +11,18 @@ function BanScreen({ timeRemaining }) {
   const [eyeRotation, setEyeRotation] = useState({ left: { x: 0, y: 0 }, right: { x: 0, y: 0 } });
   const leftEyeRef = useRef(null);
   const rightEyeRef = useRef(null);
+
+  // Handle successful Turnstile verification
+  const handleVerify = (token) => {
+    if (token) {
+      // Clear ban from localStorage
+      localStorage.removeItem('devToolsBan');
+      localStorage.removeItem('devToolsStrikes');
+      
+      // Reload page to restore access
+      window.location.reload();
+    }
+  };
 
   // Format time remaining
   const formatTime = (ms) => {
@@ -168,6 +181,12 @@ function BanScreen({ timeRemaining }) {
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Turnstile VerificationWidget */}
+        <div className="mt-6">
+            <p className="text-gray-400 text-sm mb-2 text-center">Bukan bot? Verifikasi untuk membuka akses:</p>
+            <TurnstileWidget onVerify={handleVerify} />
         </div>
 
         {/* Warning message */}
