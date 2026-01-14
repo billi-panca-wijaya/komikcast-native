@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBookOpen } from '@fortawesome/free-solid-svg-icons'
@@ -6,6 +6,9 @@ import CardTerbaruComic from '../components/Home/CardTerbaruComic'
 import CardTrendingComic from '../components/Home/CardTrendingComic'
 import GenreList from '../components/GenreList'
 import SEO from '../components/SEO'
+
+// Lazy load Hyperspeed for performance
+const Hyperspeed = lazy(() => import('../components/Hyperspeed'))
 
 const Home = () => {
   return (
@@ -17,11 +20,39 @@ const Home = () => {
         url="https://s1.komikcast00.co.id/"
       />
       <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#0d1117] dark:to-[#0a0a0a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
-      {/* Background decorative elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-900/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-slate-800/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 right-1/3 w-96 h-96 bg-blue-950/20 rounded-full blur-3xl"></div>
+      {/* Hyperspeed 3D Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <Suspense fallback={
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#0d1117] to-[#0a0a0a]" />
+        }>
+          <Hyperspeed
+            effectOptions={{
+              distortion: 'turbulentDistortion',
+              length: 400,
+              roadWidth: 10,
+              islandWidth: 2,
+              lanesPerRoad: 3,
+              fov: 90,
+              fovSpeedUp: 150,
+              speedUp: 2,
+              carLightsFade: 0.4,
+              totalSideLightSticks: 20,
+              lightPairsPerRoadWay: 40,
+              colors: {
+                roadColor: 0x080808,
+                islandColor: 0x0a0a0a,
+                background: 0x000000,
+                shoulderLines: 0x131318,
+                brokenLines: 0x131318,
+                leftCars: [0x14b8a6, 0x0e7490, 0x06b6d4],
+                rightCars: [0x3b82f6, 0x1d4ed8, 0x6366f1],
+                sticks: 0x14b8a6
+              }
+            }}
+          />
+        </Suspense>
+        {/* Overlay gradient for better readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent" />
       </div>
 
       {/* Content */}

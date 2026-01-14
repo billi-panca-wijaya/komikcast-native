@@ -220,6 +220,15 @@ const DetailComic = () => {
     // Ensure we don't crash if render happens before redirect
     if (!displayComic && !loading && !error) return null;
 
+    // Helper function to extract clean chapter number
+    const extractChapterNumber = (chapterValue) => {
+        if (!chapterValue) return null;
+        const str = String(chapterValue);
+        // Match patterns like "Chapter 35", "Ch. 35.5", or just "35"
+        const match = str.match(/(?:chapter\s*)?(\d+(?:\.\d+)?)/i);
+        return match ? match[1] : str.replace(/[^0-9.]/g, '') || str;
+    };
+
     const handleReadComic = (chapterData = null) => {
         let chapterToRead;
 
@@ -232,11 +241,14 @@ const DetailComic = () => {
             return;
         }
         
-        navigate(`/read-comic/${slug}/chapter-${chapterToRead.chapter}`, { 
+        // Extract clean chapter number for consistent URL format
+        const cleanChapterNumber = extractChapterNumber(chapterToRead.chapter);
+        
+        navigate(`/read-comic/${slug}/chapter-${cleanChapterNumber}`, { 
             state: { 
                 chapterLink: chapterToRead.link,
                 comicTitle: displayComic.title,
-                chapterNumber: chapterToRead.chapter,
+                chapterNumber: cleanChapterNumber,
                 comicDetailState: { comic: displayComic, processedLink: effectiveProcessedLink }, 
             } 
         })
