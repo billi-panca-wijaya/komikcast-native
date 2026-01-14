@@ -19,6 +19,8 @@ import Contact from './Pages/Contact'
 import EditorialGuidelines from './Pages/EditorialGuidelines'
 import DMCA from './Pages/DMCA'
 import FAQ from './Pages/FAQ'
+import useDevToolsProtection from './hooks/useDevToolsProtection'
+import BanScreen from './components/BanScreen'
 
 function AppContent() {
   // Track page views
@@ -59,6 +61,14 @@ function AppContent() {
 }
 
 function App() {
+  // DevTools protection - shows ban screen if user tries to access DevTools
+  const { isBanned, timeRemaining } = useDevToolsProtection()
+
+  // If banned, show ban screen instead of app content
+  if (isBanned) {
+    return <BanScreen timeRemaining={timeRemaining} />
+  }
+
   return (
     <ThemeProvider>
       <Router>
