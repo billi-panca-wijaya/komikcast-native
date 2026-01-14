@@ -21,7 +21,7 @@ export const measureWebVitals = () => {
 
     try {
       observer.observe({ type: 'largest-contentful-paint', buffered: true });
-    } catch (e) {
+    } catch {
       // LCP not supported
     }
   };
@@ -40,7 +40,7 @@ export const measureWebVitals = () => {
 
     try {
       observer.observe({ type: 'layout-shift', buffered: true });
-    } catch (e) {
+    } catch {
       // CLS not supported
     }
   };
@@ -55,7 +55,7 @@ export const measureWebVitals = () => {
 
     try {
       observer.observe({ type: 'first-input', buffered: true });
-    } catch (e) {
+    } catch {
       // FID not supported
     }
   };

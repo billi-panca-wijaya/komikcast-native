@@ -45,7 +45,7 @@ const CardUnlimitedComic = () => {
                         .replace('/manga/', '')
                         .replace('/plus/', '')
                         .replace(/^\/+|\/+$/g, ''); 
-                } catch (e) {
+                } catch {
                     console.log("Error parsing URL", comic.link);
                 }
 

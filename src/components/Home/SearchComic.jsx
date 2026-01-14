@@ -42,7 +42,7 @@ const SearchComic = () => {
                 })
 
                 setSearchResults(processedResults)
-            } catch (_err) {
+            } catch {
                 setError('Terjadi kesalahan saat mencari komik')
             } finally {
                 setLoading(false)
