@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 const Footer = () => {
-  // Initialize Histats tracking
+  // Initialize Histats and DMCA tracking
   useEffect(() => {
     const initHistats = () => {
       if (typeof window !== 'undefined') {
@@ -21,7 +21,18 @@ const Footer = () => {
         }
       }
     }
+
+    const initDmca = () => {
+      if (typeof window !== 'undefined' && !document.querySelector('script[src*="DMCABadgeHelper.min.js"]')) {
+        const script = document.createElement('script')
+        script.src = 'https://images.dmca.com/Badges/DMCABadgeHelper.min.js'
+        script.async = true
+        document.body.appendChild(script)
+      }
+    }
+
     initHistats()
+    initDmca()
   }, [])
 
   const footerLinks = [
@@ -80,14 +91,14 @@ const Footer = () => {
           <div className="flex flex-wrap items-center justify-center gap-6 mt-8">
             {/* DMCA Badge */}
             <a 
-              href="https://www.dmca.com/compliance/s1.komikcast00.co.id" 
-              title="DMCA Compliance information for s1.komikcast00.co.id"
-              className="hover:opacity-80 transition-opacity"
+              href="//www.dmca.com/Protection/Status.aspx?ID=06bfa225-7c97-45ab-8913-69e458233658" 
+              title="DMCA.com Protection Status" 
+              className="dmca-badge hover:opacity-80 transition-opacity"
             >
               <img 
-                src="https://www.dmca.com/img/dmca-compliant-grayscale.png" 
-                alt="DMCA compliant" 
-                className="h-8 opacity-80 hover:opacity-100"
+                src="https://images.dmca.com/Badges/_dmca_premi_badge_4.png?ID=06bfa225-7c97-45ab-8913-69e458233658"  
+                alt="DMCA.com Protection Status" 
+                className="h-10 opacity-80 hover:opacity-100"
               />
             </a>
 
