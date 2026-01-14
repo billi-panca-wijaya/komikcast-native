@@ -104,11 +104,7 @@ const TrendingPage = () => {
                     title="Komik Trending - Komikcast"
                     description="Komikcast menghadirkan komik trending dan populer. Baca komik terbaik gratis tanpa iklan."
                     keywords="komik trending, komik populer, komikcast, komik hits"
-<<<<<<< HEAD
                     url="https://s1.komikcast00.co.id/trending"
-=======
-                    url="https://komikcast.co.id/trending"
->>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
                 />
                 <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#121212] dark:to-[#1a1a1a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
                     <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -154,11 +150,7 @@ const TrendingPage = () => {
                 title="Komik Trending - Komikcast"
                 description="Komikcast menghadirkan komik trending dan populer. Baca komik terbaik gratis tanpa iklan."
                 keywords="komik trending, komik populer, komikcast, komik viral"
-<<<<<<< HEAD
                 url="https://s1.komikcast00.co.id/trending"
-=======
-                url="https://komikcast.co.id/trending"
->>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
             />
             <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#121212] dark:to-[#1a1a1a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
                 {/* Background decorative elements */}

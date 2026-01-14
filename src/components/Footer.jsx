@@ -39,11 +39,7 @@ const Footer = () => {
         <div className="border-t border-gray-300 dark:border-gray-700 pt-8">
           {/* Logo and Brand */}
           <div className="flex justify-center mb-8">
-<<<<<<< HEAD
             <a href="https://s1.komikcast00.co.id/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-=======
-            <a href="https://komikcast.co.id/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
->>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
               <img 
                 src="https://cloudassetskita.com/uploads/kclogo-d386495e.png" 
                 alt="Komikcast Logo" 
@@ -68,20 +64,12 @@ const Footer = () => {
           {/* Main Content */}
           <div className="text-center">
             <p className="text-gray-600 dark:text-gray-400 text-sm">
-<<<<<<< HEAD
               <a href="https://s1.komikcast00.co.id/" className="text-teal-500 hover:text-teal-400 transition-colors font-semibold">
-=======
-              <a href="https://komikcast.co.id/" className="text-teal-500 hover:text-teal-400 transition-colors font-semibold">
->>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
                 Komikcast
               </a> - Platform baca komik online terbaik tanpa iklan
             </p>
             <p className="text-gray-500 dark:text-gray-500 text-xs mt-2">
-<<<<<<< HEAD
               &copy; {new Date().getFullYear()} <a href="https://s1.komikcast00.co.id/" className="hover:text-teal-400 transition-colors">Komikcast</a>. All rights reserved.
-=======
-              &copy; {new Date().getFullYear()} <a href="https://komikcast.co.id/" className="hover:text-teal-400 transition-colors">Komikcast</a>. All rights reserved.
->>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
             </p>
             <p className="text-gray-400 dark:text-gray-600 text-xs mt-4 max-w-2xl mx-auto leading-relaxed">
               All the comics on this website are only previews of the original comics, there may be many language errors, character names, and story lines. For the original version, please buy the comic if it's available in your city.
@@ -92,13 +80,8 @@ const Footer = () => {
           <div className="flex flex-wrap items-center justify-center gap-6 mt-8">
             {/* DMCA Badge */}
             <a 
-<<<<<<< HEAD
               href="https://www.dmca.com/compliance/s1.komikcast00.co.id" 
               title="DMCA Compliance information for s1.komikcast00.co.id"
-=======
-              href="https://www.dmca.com/compliance/komikcast.co.id" 
-              title="DMCA Compliance information for komikcast.co.id"
->>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
               className="hover:opacity-80 transition-opacity"
             >
               <img 

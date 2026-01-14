@@ -1,16 +1,17 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type UserConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import Sitemap from 'vite-plugin-sitemap'
-import { generateDynamicRoutes, staticRoutes, excludedRoutes } from './scripts/generateRoutes.js'
+import { generateDynamicRoutes, staticRoutes, excludedRoutes } from './scripts/generateRoutes'
 
 // https://vite.dev/config/
-export default defineConfig(async () => {
+export default defineConfig(async (): Promise<UserConfig> => {
   // Fetch dynamic routes at build time
-  let dynamicRoutes = [];
+  let dynamicRoutes: string[] = [];
   try {
     dynamicRoutes = await generateDynamicRoutes();
-  } catch (error) {
-    console.warn('⚠️ Failed to fetch dynamic routes:', error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.warn('⚠️ Failed to fetch dynamic routes:', errorMessage);
     console.warn('   Sitemap will only include static routes.');
   }
 
@@ -21,11 +22,7 @@ export default defineConfig(async () => {
     plugins: [
       react(),
       Sitemap({
-<<<<<<< HEAD
         hostname: 'https://s1.komikcast00.co.id',
-=======
-        hostname: 'https://komikcast.co.id',
->>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
         dynamicRoutes: allRoutes,
         exclude: excludedRoutes,
         changefreq: 'daily',

@@ -7,11 +7,7 @@ const EditorialGuidelines = () => {
       <SEO
         title="Pedoman Editorial - Komikcast"
         description="Pedoman editorial Komikcast - Platform baca komik online terbaik bahasa Indonesia"
-<<<<<<< HEAD
         url="https://s1.komikcast00.co.id/pedoman-editorial"
-=======
-        url="https://komikcast.co.id/pedoman-editorial"
->>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
       />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#0d1117] dark:to-[#0a0a0a] text-gray-900 dark:text-gray-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -78,11 +74,7 @@ const EditorialGuidelines = () => {
               <section className="mb-8">
                 <h2 id="hubungi-kami" className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">4. Hubungi Kami</h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
-<<<<<<< HEAD
                   Jika Anda memiliki pertanyaan mengenai pedoman editorial kami atau ingin memberikan umpan balik mengenai konten di Komikcast, Anda dapat menghubungi kami melalui email di <a href="mailto:admin@komikcast00.co.id" className="text-blue-500">admin@komikcast00.co.id</a>.
-=======
-                  Jika Anda memiliki pertanyaan mengenai pedoman editorial kami atau ingin memberikan umpan balik mengenai konten di Komikcast, Anda dapat menghubungi kami melalui email di <a href="mailto:general@komikcast.co.id" className="text-blue-500">general@komikcast.co.id</a>.
->>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
                 </p>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
                   Kami selalu terbuka untuk saran dan kritik yang konstruktif untuk terus memperbaiki kualitas platform kami.

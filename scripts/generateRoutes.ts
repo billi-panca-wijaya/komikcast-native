@@ -7,10 +7,19 @@
 
 const API_BASE = 'https://www.sankavollerei.com/comic';
 
+interface Comic {
+  title: string;
+  chapter?: string;
+}
+
+interface ApiResponse {
+  comics?: Comic[];
+}
+
 /**
  * Generate slug from comic title
  */
-function generateSlug(title) {
+function generateSlug(title: string): string {
   return title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -20,8 +29,8 @@ function generateSlug(title) {
 /**
  * Fetch all comics from the API
  */
-async function fetchAllComics() {
-  const allComics = [];
+async function fetchAllComics(): Promise<Comic[]> {
+  const allComics: Comic[] = [];
   const pages = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   for (const page of pages) {
@@ -29,11 +38,12 @@ async function fetchAllComics() {
       const response = await fetch(`${API_BASE}/terbaru?page=${page}`);
       if (!response.ok) continue;
       
-      const data = await response.json();
+      const data: ApiResponse = await response.json();
       const comics = data.comics || [];
       allComics.push(...comics);
     } catch (error) {
-      console.warn(`Failed to fetch page ${page}:`, error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.warn(`Failed to fetch page ${page}:`, errorMessage);
     }
   }
 
@@ -56,11 +66,11 @@ async function fetchAllComics() {
  * Generate dynamic routes for sitemap
  * Returns an array of route paths
  */
-export async function generateDynamicRoutes() {
+export async function generateDynamicRoutes(): Promise<string[]> {
   console.log('🔍 Fetching comics for sitemap...');
   
   const comics = await fetchAllComics();
-  const routes = [];
+  const routes: string[] = [];
 
   // Generate /detail-comic/:slug routes
   for (const comic of comics) {
@@ -76,7 +86,7 @@ export async function generateDynamicRoutes() {
  * Static routes configuration
  * These are always included in the sitemap
  */
-export const staticRoutes = [
+export const staticRoutes: string[] = [
   '/',
   '/terbaru',
   '/trending',
@@ -93,7 +103,7 @@ export const staticRoutes = [
 /**
  * Routes to exclude from sitemap
  */
-export const excludedRoutes = [
+export const excludedRoutes: string[] = [
   '/history',      // User-specific (localStorage)
   '/statistics',   // Admin dashboard
 ];

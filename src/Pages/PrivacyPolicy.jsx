@@ -7,11 +7,7 @@ const PrivacyPolicy = () => {
       <SEO
         title="Kebijakan Privasi - Komikcast"
         description="Kebijakan privasi Komikcast - Platform baca komik online terbaik bahasa Indonesia"
-<<<<<<< HEAD
         url="https://s1.komikcast00.co.id/kebijakan-privasi"
-=======
-        url="https://komikcast.co.id/kebijakan-privasi"
->>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
       />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#0d1117] dark:to-[#0a0a0a] text-gray-900 dark:text-gray-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -107,11 +103,7 @@ const PrivacyPolicy = () => {
               <section className="mb-8">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">8. Hubungi Kami</h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
-<<<<<<< HEAD
                   Jika Anda memiliki pertanyaan atau kekhawatiran terkait dengan Kebijakan Privasi ini, silakan hubungi kami melalui email di <a href="mailto:admin@komikcast00.co.id" className="text-blue-500">admin@komikcast00.co.id</a>.
-=======
-                  Jika Anda memiliki pertanyaan atau kekhawatiran terkait dengan Kebijakan Privasi ini, silakan hubungi kami melalui email di <a href="mailto:general@komikcast.co.id" className="text-blue-500">general@komikcast.co.id</a>.
->>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
                 </p>
               </section>
             </div>

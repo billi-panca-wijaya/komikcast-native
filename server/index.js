@@ -26,13 +26,8 @@ const app = express();
 // Enable CORS
 const allowedOrigins = [
   'http://localhost:5173',
-<<<<<<< HEAD
   'https://s1.komikcast00.co.id',
   'https://www.s1.komikcast00.co.id',
-=======
-  'https://komikcast.co.id',
-  'https://www.komikcast.co.id',
->>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
   'https://backend-comic.antidonasi.web.id'
 ];
 
@@ -282,11 +277,7 @@ app.get('/api/indexing/status', verifyAdminKey, async (req, res) => {
 app.post('/api/indexing/auto', verifyAdminKey, async (req, res) => {
   try {
     const { comicSlug, chapterNumber } = req.body;
-<<<<<<< HEAD
     const baseUrl = 'https://s1.komikcast00.co.id';
-=======
-    const baseUrl = 'https://komikcast.co.id';
->>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
     
     if (!comicSlug || !chapterNumber) {
       return res.status(400).json({ 
