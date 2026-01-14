@@ -55,7 +55,7 @@ const TurnstileWidget = ({ onVerify, theme = 'dark' }) => {
         try {
           window.turnstile.remove(widgetId.current);
           widgetId.current = null;
-        } catch (e) {
+        } catch {
           // Ignore removal errors
         }
       }
