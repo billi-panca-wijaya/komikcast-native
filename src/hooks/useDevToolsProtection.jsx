@@ -141,12 +141,7 @@ export function useDevToolsProtection() {
     return () => clearInterval(interval);
   }, [isBanned, banEndTime]);
 
-  return {
-    isBanned,
-    banEndTime,
-    violations,
-    timeRemaining: banEndTime ? Math.max(0, banEndTime - Date.now()) : 0,
-  };
+  return { isBanned, timeRemaining: banEndTime ? Math.max(0, banEndTime - Date.now()) : 0, violations, maxViolations: 3 };
 }
 
 export default useDevToolsProtection;

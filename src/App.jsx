@@ -21,6 +21,7 @@ import DMCA from './Pages/DMCA'
 import FAQ from './Pages/FAQ'
 import useDevToolsProtection from './hooks/useDevToolsProtection'
 import BanScreen from './components/BanScreen'
+import WarningToast from './components/WarningToast'
 
 function AppContent() {
   // Track page views
@@ -62,7 +63,7 @@ function AppContent() {
 
 function App() {
   // DevTools protection - shows ban screen if user tries to access DevTools
-  const { isBanned, timeRemaining } = useDevToolsProtection()
+  const { isBanned, timeRemaining, violations, maxViolations } = useDevToolsProtection()
 
   // If banned, show ban screen instead of app content
   if (isBanned) {
@@ -72,6 +73,7 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
+        <WarningToast violations={violations} maxViolations={maxViolations} />
         <AppContent />
       </Router>
     </ThemeProvider>
