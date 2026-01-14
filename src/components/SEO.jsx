@@ -4,9 +4,9 @@ import { useLocation } from 'react-router-dom';
 
 const SEO = ({
   title = 'Komikcast - Baca Komik Online Tanpa Iklan Bahasa Indonesia',
-  description = 'Komikcast menghadirkan pengalaman baca komik online terbaik bahasa Indonesia. Dari One Piece sampai Apotheosis, semua tersedia gratis tanpa iklan',
-  keywords = 'komikcast, komik indonesia, baca komik gratis, komik online, manga indonesia, manhwa indonesia, komik terbaru, komik trending, one piece, apotheosis',
-  image = 'https://cloudassetskita.com/uploads/kclogo-d386495e.png',
+  description = 'Platform baca komik online terlengkap di Indonesia. Tanpa iklan, HD quality, bahasa Indonesia. Update harian!',
+  keywords = 'komikcast, baca komik, komik online, manga indonesia, manhwa indonesia, komik tanpa iklan, komik hd, komik terbaru, download komik',
+  image = 'https://cloudassetskita.com/uploads/cropped-cropped-logo-kc-192x192-1-192x192-c602be92.webp',
   url,  // Optional - will auto-detect from current route if not provided
   type = 'website',
   structuredData = null
