@@ -13,9 +13,9 @@ const UnlimitedPage = () => {
     return (
         <>
             <SEO
-                title="All Comic / Unlimited - Komikcast"
-                description="Komikcast menghadirkan koleksi komik unlimited tanpa batas. Baca gratis tanpa iklan."
-                keywords="komik unlimited, baca komik, koleksi lengkap, komikcast, all comic"
+                title="Direktori Lengkap Komik (A-Z) - Manga, Manhwa, Manhua - Komikcast"
+                description="Cari dan temukan semua judul komik yang tersedia di Komikcast. Database lengkap manga, manhwa, dan manhua dari A sampai Z."
+                keywords="daftar komik, direktori manga, semua komik, library komikcast, database manhwa"
                 url="https://s1.komikcast00.co.id/unlimited"
             />
             <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#0d1117] dark:to-[#0a0a0a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors">

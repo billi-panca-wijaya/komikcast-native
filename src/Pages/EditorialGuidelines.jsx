@@ -5,8 +5,8 @@ const EditorialGuidelines = () => {
   return (
     <>
       <SEO
-        title="Pedoman Editorial - Komikcast"
-        description="Pedoman editorial Komikcast - Platform baca komik online terbaik bahasa Indonesia"
+        title="Pedoman Editorial & Standar Konten - Komikcast"
+        description="Pelajari standar kualitas, kebijakan terjemahan, dan proses editorial kami dalam menyajikan konten komik terbaik dan berkualitas."
         url="https://s1.komikcast00.co.id/pedoman-editorial"
       />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#0d1117] dark:to-[#0a0a0a] text-gray-900 dark:text-gray-100">

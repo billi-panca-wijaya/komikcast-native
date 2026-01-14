@@ -23,6 +23,7 @@ import useDevToolsProtection from './hooks/useDevToolsProtection'
 import BanScreen from './components/BanScreen'
 import WarningToast from './components/WarningToast'
 
+import GlobalErrorNotification from './components/GlobalErrorNotification'
 
 function AppContent() {
   // Track page views
@@ -34,6 +35,8 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Global Error Notification - visible everywhere except reader for maximum reach */}
+      {!isReaderPage && <GlobalErrorNotification />}
 
       {/* Hide Navbar on reader page - reader has its own fixed header */}
       {!isReaderPage && <Navbar />}

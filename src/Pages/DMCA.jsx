@@ -5,7 +5,7 @@ const DMCA = () => {
   return (
     <>
       <SEO
-        title="DMCA - Komikcast"
+        title="DMCA Copyright - Komikcast"
         description="Kebijakan DMCA Komikcast - Platform baca komik online terbaik bahasa Indonesia"
         url="https://s1.komikcast00.co.id/dmca"
       />

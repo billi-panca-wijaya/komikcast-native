@@ -94,14 +94,31 @@ const FAQ = () => {
     {
       question: "Bagaimana cara request komik baru?",
       answer: "Anda dapat mengajukan request komik baru melalui halaman Kontak kami. Kami akan mempertimbangkan setiap request yang masuk."
+    },
+    {
+      question: "Mengapa saya mengalami Error 403, IP Suspend, atau Gambar tidak muncul?",
+      answer: (
+        <>
+          Jika Anda mengalami error 403 atau komik tidak muncul, atau jika IP Anda disuspend atau terkunci, harap segera hubungi kami melalui Telegram di{' '}
+          <a
+            href="https://t.me/mrbuhuy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-teal-500 hover:text-teal-400 underline font-semibold transition-colors"
+          >
+            https://t.me/mrbuhuy
+          </a>
+          . Kami akan membantu Anda untuk mem-whitelist IP Anda dan memastikan akses kembali lancar.
+        </>
+      )
     }
   ]
 
   return (
     <>
       <SEO
-        title="FAQ - Komikcast"
-        description="Pertanyaan yang sering diajukan tentang Komikcast - Platform baca komik online terbaik bahasa Indonesia"
+        title="Pusat Bantuan & Pertanyaan Umum (FAQ) - Komikcast"
+        description="Temukan jawaban cepat untuk pertanyaan seputar cara baca, fitur download, dan layanan gratis di Komikcast."
         url="https://s1.komikcast00.co.id/faq"
       />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#0d1117] dark:to-[#0a0a0a] text-gray-900 dark:text-gray-100">

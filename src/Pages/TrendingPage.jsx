@@ -101,9 +101,9 @@ const TrendingPage = () => {
         return (
             <>
                 <SEO
-                    title="Komik Trending - Komikcast"
-                    description="Komikcast menghadirkan komik trending dan populer. Baca komik terbaik gratis tanpa iklan."
-                    keywords="komik trending, komik populer, komikcast, komik hits"
+                    title="Komik Paling Populer & Trending Minggu Ini - Komikcast"
+                    description="Temukan komik manga, manhwa, dan manhua yang sedang viral dan paling banyak dibaca minggu ini. Jangan ketinggalan judul-judul hits pilihan pembaca."
+                    keywords="komik trending, manga populer, manhwa hits, komik viral, top komik"
                     url="https://s1.komikcast00.co.id/trending"
                 />
                 <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#121212] dark:to-[#1a1a1a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
