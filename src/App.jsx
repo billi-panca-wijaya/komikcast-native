@@ -22,7 +22,7 @@ import FAQ from './Pages/FAQ'
 import useDevToolsProtection from './hooks/useDevToolsProtection'
 import BanScreen from './components/BanScreen'
 import WarningToast from './components/WarningToast'
-import GridScanBackground from './components/GridScanBackground'
+
 
 function AppContent() {
   // Track page views
@@ -34,8 +34,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* GridScan background - hide on reader page for clean reading */}
-      {!isReaderPage && <GridScanBackground />}
+
       {/* Hide Navbar on reader page - reader has its own fixed header */}
       {!isReaderPage && <Navbar />}
       <main className="flex-1">

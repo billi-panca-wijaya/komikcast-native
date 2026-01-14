@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBookOpen } from '@fortawesome/free-solid-svg-icons'
@@ -8,7 +8,7 @@ import GenreList from '../components/GenreList'
 import SEO from '../components/SEO'
 
 // Lazy load GridScan for performance
-const GridScan = lazy(() => import('../components/GridScan'))
+
 
 const Home = () => {
   return (
@@ -20,29 +20,7 @@ const Home = () => {
         url="https://s1.komikcast00.co.id/"
       />
       <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#0d1117] dark:to-[#0a0a0a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
-      {/* GridScan Background Effect */}
-      <div className="fixed inset-0 overflow-hidden z-0" style={{ pointerEvents: 'none' }}>
-        <Suspense fallback={
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#0d1117] to-[#0a0a0a]" />
-        }>
-          <div style={{ width: '100%', height: '100%', pointerEvents: 'auto' }}>
-            <GridScan
-              sensitivity={0.55}
-              lineThickness={1}
-              linesColor="#0d3d3d"
-              gridScale={0.1}
-              scanColor="#14b8a6"
-              scanOpacity={0.5}
-              enablePost={true}
-              bloomIntensity={0.6}
-              chromaticAberration={0.002}
-              noiseIntensity={0.01}
-              scanDuration={2.5}
-              scanDelay={1.5}
-            />
-          </div>
-        </Suspense>
-      </div>
+
 
       {/* Content */}
       <div className="relative z-10">
