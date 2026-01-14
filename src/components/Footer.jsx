@@ -34,16 +34,16 @@ const Footer = () => {
   ]
 
   return (
-    <footer className="mt-auto bg-gradient-to-t from-gray-100 to-transparent dark:from-gray-900 dark:to-transparent">
+    <footer className="relative z-10 mt-auto bg-gradient-to-t from-gray-900/90 to-transparent backdrop-blur-sm pointer-events-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="border-t border-gray-300 dark:border-gray-700 pt-8">
+        <div className="border-t border-white/10 pt-8">
           {/* Logo and Brand */}
           <div className="flex justify-center mb-8">
             <a href="https://s1.komikcast00.co.id/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <img 
                 src="https://cloudassetskita.com/uploads/kclogo-d386495e.png" 
                 alt="Komikcast Logo" 
-                className="h-10 w-auto"
+                className="h-10 w-auto drop-shadow-[0_0_8px_rgba(20,184,166,0.5)]"
               />
             </a>
           </div>
@@ -54,7 +54,7 @@ const Footer = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-teal-500 dark:hover:text-teal-400 transition-colors"
+                className="text-sm text-gray-200 hover:text-white hover:drop-shadow-[0_0_5px_rgba(45,212,191,0.8)] transition-all duration-300 font-medium tracking-wide"
               >
                 {link.name}
               </Link>
@@ -63,15 +63,15 @@ const Footer = () => {
 
           {/* Main Content */}
           <div className="text-center">
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
-              <a href="https://s1.komikcast00.co.id/" className="text-teal-500 hover:text-teal-400 transition-colors font-semibold">
+            <p className="text-gray-200 text-sm drop-shadow-sm">
+              <a href="https://s1.komikcast00.co.id/" className="text-teal-400 hover:text-teal-300 transition-colors font-bold drop-shadow-[0_0_5px_rgba(45,212,191,0.5)]">
                 Komikcast
               </a> - Platform baca komik online terbaik tanpa iklan
             </p>
-            <p className="text-gray-500 dark:text-gray-500 text-xs mt-2">
-              &copy; {new Date().getFullYear()} <a href="https://s1.komikcast00.co.id/" className="hover:text-teal-400 transition-colors">Komikcast</a>. All rights reserved.
+            <p className="text-gray-400 text-xs mt-2">
+              &copy; {new Date().getFullYear()} <a href="https://s1.komikcast00.co.id/" className="text-gray-300 hover:text-white transition-colors">Komikcast</a>. All rights reserved.
             </p>
-            <p className="text-gray-400 dark:text-gray-600 text-xs mt-4 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-gray-500 text-xs mt-4 max-w-2xl mx-auto leading-relaxed">
               All the comics on this website are only previews of the original comics, there may be many language errors, character names, and story lines. For the original version, please buy the comic if it's available in your city.
             </p>
           </div>
@@ -87,7 +87,7 @@ const Footer = () => {
               <img 
                 src="https://www.dmca.com/img/dmca-compliant-grayscale.png" 
                 alt="DMCA compliant" 
-                className="h-8"
+                className="h-8 opacity-80 hover:opacity-100"
               />
             </a>
 
