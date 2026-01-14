@@ -1,11 +1,19 @@
 # Robots.txt for Komikcast
+<<<<<<< HEAD
 # https://s1.komikcast00.co.id/
+=======
+# https://komikcast.co.id/
+>>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
 
 User-agent: *
 Allow: /
 
 # Sitemap
+<<<<<<< HEAD
 Sitemap: https://s1.komikcast00.co.id/sitemap.xml
+=======
+Sitemap: https://komikcast.co.id/sitemap.xml
+>>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
 
 # Crawl-delay
 Crawl-delay: 1

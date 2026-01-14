@@ -133,7 +133,11 @@ const DetailComic = () => {
             ? `Baca komik ${displayComic.title} bahasa Indonesia lengkap. ${comicDetail?.synopsis?.substring(0, 160) || 'Sinopsis belum tersedia'}...`
             : 'Sedang memuat detail komik...',
         image: displayComic?.image,
+<<<<<<< HEAD
         url: slug ? `https://s1.komikcast00.co.id/detail-comic/${slug}` : 'https://s1.komikcast00.co.id/', // Fallback if slug missing
+=======
+        url: slug ? `https://komikcast.co.id/detail-comic/${slug}` : 'https://komikcast.co.id/', // Fallback if slug missing
+>>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
         keywords: displayComic 
             ? `baca komik ${displayComic.title}, komik ${displayComic.title} indo, ${displayComic.title} bahasa indonesia, komikcast`
             : 'komikcast, baca komik'

@@ -350,7 +350,11 @@ const ReadComic = () => {
                 title={`Baca Komik ${comicTitle} Chapter ${chapterNumber} Bahasa Indonesia`}
                 description={`Baca manhwa/komik ${comicTitle} Chapter ${chapterNumber} bahasa Indonesia gratis dan berkualitas tinggi di Komikcast.`}
                 image={comicDetailState?.comic?.image}
+<<<<<<< HEAD
                 url={`https://s1.komikcast00.co.id/read-comic/${slug}/${chapterSlug}`}
+=======
+                url={`https://komikcast.co.id/read-comic/${slug}/${chapterSlug}`}
+>>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
                 keywords={`baca komik ${comicTitle}, ${comicTitle} chapter ${chapterNumber}, komikcast ${comicTitle}`}
             />
             

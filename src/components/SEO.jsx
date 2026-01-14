@@ -15,7 +15,11 @@ const SEO = ({
   const fullTitle = title.includes(siteTitle) ? title : `${title} - ${siteTitle}`;
 
   const location = useLocation();
+<<<<<<< HEAD
   const baseUrl = 'https://s1.komikcast00.co.id';
+=======
+  const baseUrl = 'https://komikcast.co.id';
+>>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
   
   // Auto-detect URL from current route if not explicitly provided
   const rawUrl = url || `${baseUrl}${location.pathname}`;

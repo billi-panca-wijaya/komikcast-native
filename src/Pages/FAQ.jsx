@@ -102,7 +102,11 @@ const FAQ = () => {
       <SEO
         title="FAQ - Komikcast"
         description="Pertanyaan yang sering diajukan tentang Komikcast - Platform baca komik online terbaik bahasa Indonesia"
+<<<<<<< HEAD
         url="https://s1.komikcast00.co.id/faq"
+=======
+        url="https://komikcast.co.id/faq"
+>>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
       />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#0d1117] dark:to-[#0a0a0a] text-gray-900 dark:text-gray-100">
         {/* Background decorative elements */}

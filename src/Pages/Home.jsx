@@ -14,7 +14,11 @@ const Home = () => {
         title="Komikcast - Baca Komik Online Tanpa Iklan Bahasa Indonesia"
         description="Komikcast menghadirkan pengalaman baca komik online terbaik bahasa Indonesia. Dari One Piece sampai Apotheosis, semua tersedia gratis tanpa iklan"
         keywords="komikcast, komik indonesia, baca komik gratis, komik online, manga indonesia, manhwa indonesia"
+<<<<<<< HEAD
         url="https://s1.komikcast00.co.id/"
+=======
+        url="https://komikcast.co.id/"
+>>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
       />
       <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#0d1117] dark:to-[#0a0a0a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
       {/* Background decorative elements */}

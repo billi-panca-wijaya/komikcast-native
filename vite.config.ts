@@ -21,7 +21,11 @@ export default defineConfig(async () => {
     plugins: [
       react(),
       Sitemap({
+<<<<<<< HEAD
         hostname: 'https://s1.komikcast00.co.id',
+=======
+        hostname: 'https://komikcast.co.id',
+>>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
         dynamicRoutes: allRoutes,
         exclude: excludedRoutes,
         changefreq: 'daily',

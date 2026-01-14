@@ -19,7 +19,11 @@ const PustakaPage = () => {
                 title={genreFromUrl ? `Komik ${genreFromUrl} - Komikcast` : "Pustaka Komik - Komikcast"}
                 description={genreFromUrl ? `Koleksi komik ${genreFromUrl} terlengkap di Komikcast. Baca gratis tanpa iklan.` : "Komikcast menghadirkan koleksi lengkap komik online gratis tanpa iklan."}
                 keywords={genreFromUrl ? `komik ${genreFromUrl}, baca komik ${genreFromUrl}, komikcast` : "pustaka komik, koleksi komik, baca komik online, komikcast"}
+<<<<<<< HEAD
                 url={genreFromUrl ? `https://s1.komikcast00.co.id/pustaka?genre=${genreFromUrl}` : "https://s1.komikcast00.co.id/pustaka"}
+=======
+                url={genreFromUrl ? `https://komikcast.co.id/pustaka?genre=${genreFromUrl}` : "https://komikcast.co.id/pustaka"}
+>>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
             />
             <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#0d1117] dark:to-[#0a0a0a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
                 {/* Background decorative elements - Dark Blue */}

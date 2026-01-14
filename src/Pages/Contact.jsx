@@ -7,7 +7,11 @@ const Contact = () => {
       <SEO
         title="Kontak - Komikcast"
         description="Hubungi Komikcast - Platform baca komik online terbaik bahasa Indonesia"
+<<<<<<< HEAD
         url="https://s1.komikcast00.co.id/kontak"
+=======
+        url="https://komikcast.co.id/kontak"
+>>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
       />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#0d1117] dark:to-[#0a0a0a] text-gray-900 dark:text-gray-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -23,7 +27,11 @@ const Contact = () => {
                   Jika Anda memiliki pertanyaan, saran, atau masukan, silakan hubungi kami melalui:
                 </p>
                 <ul className="list-disc pl-6 mt-4 text-gray-600 dark:text-gray-400">
+<<<<<<< HEAD
                   <li>Email: <a href="mailto:admin@komikcast00.co.id" className="text-blue-500">admin@komikcast00.co.id</a></li>
+=======
+                  <li>Email: <a href="mailto:general@komikcast.co.id" className="text-blue-500">general@komikcast.co.id</a></li>
+>>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
                   <li>Sosial Media: (akan diperbarui)</li>
                 </ul>
               </section>

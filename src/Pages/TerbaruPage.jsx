@@ -221,7 +221,11 @@ const TerbaruPage = () => {
                     title="Komik Terbaru - Komikcast"
                     description="Komikcast menghadirkan komik terbaru update setiap hari. Baca gratis tanpa iklan."
                     keywords="komik terbaru, komik baru, komikcast, update komik"
+<<<<<<< HEAD
                     url="https://s1.komikcast00.co.id/terbaru"
+=======
+                    url="https://komikcast.co.id/terbaru"
+>>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
                 />
                 <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#121212] dark:to-[#1a1a1a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
                     <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -267,7 +271,11 @@ const TerbaruPage = () => {
                 title="Komik Terbaru - Komikcast"
                 description="Komikcast menghadirkan komik terbaru update setiap hari. Baca gratis tanpa iklan."
                 keywords="komik terbaru, komik baru, komikcast, update komik"
+<<<<<<< HEAD
                 url="https://s1.komikcast00.co.id/terbaru"
+=======
+                url="https://komikcast.co.id/terbaru"
+>>>>>>> 85a5b46c5b559e9e093417a671157890aef146b8
             />
             <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#121212] dark:to-[#1a1a1a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
                 {/* Background decorative elements */}
