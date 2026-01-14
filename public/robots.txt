@@ -1,0 +1,15 @@
+# Robots.txt for Komikcast
+# https://s1.komikcast00.co.id/
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://s1.komikcast00.co.id/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Disallow admin/private pages
+Disallow: /api/
+Disallow: /*.json$
