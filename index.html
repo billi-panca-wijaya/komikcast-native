@@ -216,20 +216,205 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Komikcast" />
 
-    <!-- Structured Data - Website -->
+    <!-- Structured Data - Organization -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Komikcast",
+        "alternateName": ["Komik Cast", "KomikCast"],
+        "url": "https://s1.komikcast00.co.id",
+        "logo": "https://cloudassetskita.com/uploads/cropped-cropped-logo-kc-192x192-1-192x192-c602be92.webp",
+        "description": "Platform baca komik online terlengkap di Indonesia. Tanpa iklan, HD quality, bahasa Indonesia. Update harian!",
+        "foundingDate": "2025",
+        "foundingLocation": "Indonesia",
+        "sameAs": [],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "Customer Service",
+          "availableLanguage": ["Indonesian"]
+        }
+      }
+    </script>
+    <!-- Structured Data - WebSite -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "Komikcast",
-        "url": "https://s1.komikcast00.co.id/",
-        "description": "Komikcast menghadirkan pengalaman baca komik online terbaik bahasa Indonesia",
-        "inLanguage": "id-ID",
+        "alternateName": "Komikcast - Baca Komik Online Tanpa Iklan Bahasa Indonesia",
+        "url": "https://s1.komikcast00.co.id",
+        "description": "Platform baca komik online terlengkap di Indonesia. Tanpa iklan, HD quality, bahasa Indonesia. Update harian!",
+        "inLanguage": ["id"],
         "potentialAction": {
           "@type": "SearchAction",
-          "target": "https://s1.komikcast00.co.id/?s={search_term_string}",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://s1.komikcast00.co.id/search?keyword={search_term_string}"
+          },
           "query-input": "required name=search_term_string"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Komikcast",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://cloudassetskita.com/uploads/cropped-cropped-logo-kc-192x192-1-192x192-c602be92.webp"
+          }
         }
+      }
+    </script>
+    <!-- Structured Data - EntertainmentBusiness -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "EntertainmentBusiness",
+        "name": "Komikcast",
+        "url": "https://s1.komikcast00.co.id",
+        "image": "https://cloudassetskita.com/uploads/cropped-cropped-logo-kc-192x192-1-192x192-c602be92.webp",
+        "description": "Platform baca komik online terlengkap di Indonesia. Tanpa iklan, HD quality, bahasa Indonesia. Update harian!",
+        "priceRange": "Free",
+        "paymentAccepted": "Free",
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Komik Collection",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Baca Komik Online",
+                "description": "Baca komik online dengan kualitas HD bahasa Indonesia"
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Download Komik",
+                "description": "Download komik untuk dibaca secara offline"
+              }
+            }
+          ]
+        }
+      }
+    </script>
+    <!-- Structured Data - SiteNavigationElement -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "itemListElement": [
+          {
+            "@type": "SiteNavigationElement",
+            "position": 1,
+            "name": "Home",
+            "url": "https://s1.komikcast00.co.id/"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 2,
+            "name": "Terbaru",
+            "url": "https://s1.komikcast00.co.id/terbaru"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 3,
+            "name": "Trending",
+            "url": "https://s1.komikcast00.co.id/trending"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 4,
+            "name": "Pustaka",
+            "url": "https://s1.komikcast00.co.id/pustaka"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 5,
+            "name": "All Comic",
+            "url": "https://s1.komikcast00.co.id/unlimited"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 6,
+            "name": "History",
+            "url": "https://s1.komikcast00.co.id/history"
+          }
+        ]
+      }
+    </script>
+    <!-- Structured Data - FAQPage -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Apakah Komikcast gratis?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Ya, Komikcast 100% gratis! Anda dapat membaca semua komik tanpa biaya berlangganan atau pembayaran apapun. Platform kami menyediakan baca komik online gratis dengan bahasa Indonesia."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Apakah ada iklan di Komikcast?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Tidak, Komikcast adalah platform baca komik online tanpa iklan yang mengganggu. Anda dapat menikmati komik favorit dengan nyaman tanpa gangguan iklan pop-up atau video ads."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Bahasa apa saja yang tersedia di Komikcast?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Komikcast menyediakan komik dengan bahasa Indonesia untuk semua koleksi komik. Anda dapat membaca komik manga, manhwa, dan manhua dalam bahasa Indonesia."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Apakah perlu registrasi untuk baca komik di Komikcast?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Tidak perlu registrasi atau login. Anda dapat langsung membaca komik favorit tanpa perlu membuat akun. Cukup buka website dan pilih komik yang ingin dibaca."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Seberapa sering komik di Komikcast diupdate?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Komikcast diupdate setiap hari dengan chapter komik terbaru. Kami selalu menghadirkan chapter baru dari komik ongoing sesegera mungkin setelah dirilis."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Kualitas gambar apa yang tersedia di Komikcast?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Komikcast menyediakan kualitas gambar HD (High Definition) untuk semua komik. Anda dapat menikmati gambar komik dengan kualitas terbaik dan jernih."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Apakah bisa download komik di Komikcast?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Ya, Komikcast menyediakan fitur download komik untuk dibaca secara offline. Anda dapat mengunduh komik favorit dengan kualitas gambar HD."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Komik apa saja yang tersedia di Komikcast?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Komikcast memiliki koleksi komik terlengkap termasuk manga populer seperti One Piece, Naruto, Attack on Titan, Demon Slayer, Jujutsu Kaisen, My Hero Academia, serta manhwa dan manhua populer lainnya baik yang ongoing maupun completed."
+            }
+          }
+        ]
       }
     </script>
   </head>
