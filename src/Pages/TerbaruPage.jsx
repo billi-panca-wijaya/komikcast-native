@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import SkeletonLoader from '../components/SkeletonLoader'
 import SEO from '../components/SEO'
 import GenreList from '../components/GenreList'
@@ -11,13 +11,15 @@ const API_PAGES_PER_VIEW = 3 // Fetch 3 API pages per view page to ensure 15 uni
 const TerbaruPage = () => {
     const [comics, setComics] = useState([])
     const [loading, setLoading] = useState(true)
-    const [isPageLoading, setIsPageLoading] = useState(false)
     const [error, setError] = useState(null)
     const [searchQuery, setSearchQuery] = useState('')
     const [hoveredSidebar, setHoveredSidebar] = useState(null)
-    const [currentPage, setCurrentPage] = useState(1)
     const [hasMorePages, setHasMorePages] = useState(true)
     const [animationKey, setAnimationKey] = useState(0) // Reset animations on page change
+
+    // URL-based pagination for SEO and back navigation support
+    const [searchParams, setSearchParams] = useSearchParams()
+    const currentPage = parseInt(searchParams.get('page') || '1', 10)
 
     const navigate = useNavigate()
 
@@ -85,43 +87,33 @@ const TerbaruPage = () => {
         }
     }, [])
 
-    // Initial load
+    // Load comics when page changes (from URL or initial load)
     useEffect(() => {
-        const loadInitialComics = async () => {
+        const loadComicsForPage = async () => {
             try {
                 setLoading(true)
-                const initialComics = await fetchComicsForPage(1)
-                setComics(initialComics)
+                const pageComics = await fetchComicsForPage(currentPage)
+                setComics(pageComics)
                 setLoading(false)
             } catch (err) {
                 setError(err)
                 setLoading(false)
             }
         }
-        loadInitialComics()
-    }, [fetchComicsForPage])
+        loadComicsForPage()
+    }, [fetchComicsForPage, currentPage])
 
-    // Handle page change
-    const handlePageChange = async (newPage) => {
-        if (isPageLoading) return
+    // Handle page change - just update URL, useEffect handles the fetch
+    const handlePageChange = (newPage) => {
         if (newPage < 1) return
         if (newPage > currentPage && !hasMorePages) return
 
-        setIsPageLoading(true)
-        
         // Smooth scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' })
-
-        try {
-            const newComics = await fetchComicsForPage(newPage)
-            setComics(newComics)
-            setCurrentPage(newPage)
-            setAnimationKey(prev => prev + 1) // Trigger re-animation
-        } catch (err) {
-            console.error("Error changing page:", err)
-        } finally {
-            setIsPageLoading(false)
-        }
+        
+        // Update URL - this triggers the useEffect to fetch new data
+        setSearchParams({ page: newPage.toString() })
+        setAnimationKey(prev => prev + 1) // Trigger re-animation
     }
 
     const handleComicDetail = (comic) => {
@@ -155,18 +147,18 @@ const TerbaruPage = () => {
         return (
             <button
                 onClick={onClick}
-                disabled={disabled || isPageLoading}
+                disabled={disabled || loading}
                 className={`
                     group relative flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm
                     transition-all duration-300 ease-out
-                    ${disabled || isPageLoading
+                    ${disabled || loading
                         ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed opacity-50'
                         : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg hover:shadow-xl hover:shadow-indigo-500/30 hover:scale-105 active:scale-95'
                     }
                 `}
             >
                 {/* Shimmer effect on hover */}
-                {!disabled && !isPageLoading && (
+                {!disabled && !loading && (
                     <span className="absolute inset-0 rounded-xl overflow-hidden">
                         <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                     </span>
@@ -174,7 +166,7 @@ const TerbaruPage = () => {
                 
                 {!isNext && (
                     <svg 
-                        className={`w-5 h-5 transition-transform duration-300 ${!disabled && !isPageLoading ? 'group-hover:-translate-x-1' : ''}`}
+                        className={`w-5 h-5 transition-transform duration-300 ${!disabled && !loading ? 'group-hover:-translate-x-1' : ''}`}
                         fill="none" 
                         stroke="currentColor" 
                         viewBox="0 0 24 24"
@@ -184,7 +176,7 @@ const TerbaruPage = () => {
                 )}
                 
                 <span className="relative z-10">
-                    {isPageLoading 
+                    {loading 
                         ? 'Loading...' 
                         : isNext ? 'Selanjutnya' : 'Sebelumnya'
                     }
@@ -192,7 +184,7 @@ const TerbaruPage = () => {
                 
                 {isNext && (
                     <svg 
-                        className={`w-5 h-5 transition-transform duration-300 ${!disabled && !isPageLoading ? 'group-hover:translate-x-1' : ''}`}
+                        className={`w-5 h-5 transition-transform duration-300 ${!disabled && !loading ? 'group-hover:translate-x-1' : ''}`}
                         fill="none" 
                         stroke="currentColor" 
                         viewBox="0 0 24 24"
@@ -264,10 +256,12 @@ const TerbaruPage = () => {
     return (
         <>
             <SEO
-                title="Update Komik Terbaru Hari Ini - Manga, Manhwa, Manhua - Komikcast"
-                description="Daftar rilis komik terbaru hari ini. Baca update manga, manhwa, dan manhua chapter terbaru bahasa Indonesia secara gratis dan real-time."
+                title={currentPage > 1 ? `Update Komik Terbaru Halaman ${currentPage} - Komikcast` : "Update Komik Terbaru Hari Ini - Manga, Manhwa, Manhua - Komikcast"}
+                description={currentPage > 1 ? `Daftar rilis komik terbaru halaman ${currentPage}. Baca update manga, manhwa, dan manhua chapter terbaru bahasa Indonesia.` : "Daftar rilis komik terbaru hari ini. Baca update manga, manhwa, dan manhua chapter terbaru bahasa Indonesia secara gratis dan real-time."}
                 keywords="komik terbaru, update manga, update manhwa, komik rilis hari ini, komikcast terbaru"
                 url="https://s1.komikcast00.co.id/terbaru"
+                preserveQueryParams={true}
+                robots={currentPage > 10 ? "noindex, follow" : "index, follow"}
             />
             <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#121212] dark:to-[#1a1a1a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
                 {/* Background decorative elements */}
@@ -335,11 +329,11 @@ const TerbaruPage = () => {
                             <div className="flex-1">
                                 {/* Comic Grid with loading overlay */}
                                 <div className="relative min-h-[600px]">
-                                    {isPageLoading && <LoadingOverlay />}
+                                    {loading && <LoadingOverlay />}
                                     
                                     <div 
                                         key={animationKey}
-                                        className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 transition-opacity duration-300 ${isPageLoading ? 'opacity-30' : 'opacity-100'}`}
+                                        className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 transition-opacity duration-300 ${loading ? 'opacity-30' : 'opacity-100'}`}
                                     >
                                         {filteredComics.map((comic, index) => (
                                             <div
@@ -430,14 +424,14 @@ const TerbaruPage = () => {
                                                         <button
                                                             key={pageNum}
                                                             onClick={() => handlePageChange(pageNum)}
-                                                            disabled={isPageLoading}
+                                                            disabled={loading}
                                                             className={`
                                                                 w-10 h-10 rounded-lg font-semibold text-sm transition-all duration-300
                                                                 ${pageNum === currentPage 
                                                                     ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg scale-110' 
                                                                     : 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
                                                                 }
-                                                                ${isPageLoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}
+                                                                ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}
                                                             `}
                                                         >
                                                             {pageNum}
@@ -466,10 +460,7 @@ const TerbaruPage = () => {
                                 {/* No results */}
                                 {filteredComics.length === 0 && searchQuery && (
                                     <div className="flex flex-col items-center justify-center py-16">
-                                        <svg className="w-20 h-20 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <p className="text-gray-500 dark:text-gray-400 text-lg">Tidak ada komik ditemukan untuk "{searchQuery}"</p>
+                                        <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">Manga tidak ditemukan</p>
                                         <button
                                             onClick={() => setSearchQuery('')}
                                             className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors"

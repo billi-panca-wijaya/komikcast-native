@@ -88,10 +88,31 @@ export async function generateDynamicRoutes(): Promise<string[]> {
  */
 export const staticRoutes: string[] = [
   '/',
+  // Terbaru with pagination (pages 1-10 for SEO)
   '/terbaru',
+  '/terbaru?page=2',
+  '/terbaru?page=3',
+  '/terbaru?page=4',
+  '/terbaru?page=5',
+  '/terbaru?page=6',
+  '/terbaru?page=7',
+  '/terbaru?page=8',
+  '/terbaru?page=9',
+  '/terbaru?page=10',
+  // Main navigation pages
   '/trending',
   '/pustaka',
+  // Pustaka with popular genres
+  '/pustaka?genre=Action',
+  '/pustaka?genre=Adventure',
+  '/pustaka?genre=Romance',
+  '/pustaka?genre=Fantasy',
+  '/pustaka?genre=Comedy',
+  '/pustaka?genre=Drama',
+  '/pustaka?genre=Martial%20Arts',
+  '/pustaka?genre=Shounen',
   '/unlimited',
+  // Footer/info pages
   '/kebijakan-privasi',
   '/tentang-kami',
   '/kontak',
@@ -102,8 +123,10 @@ export const staticRoutes: string[] = [
 
 /**
  * Routes to exclude from sitemap
+ * These patterns will be excluded from the generated sitemap
  */
 export const excludedRoutes: string[] = [
-  '/history',      // User-specific (localStorage)
-  '/statistics',   // Admin dashboard
+  '/history',                    // User-specific (localStorage)
+  '/statistics',                 // Admin dashboard
+  '/google9a67ae197255e3b1',     // Google verification file
 ];

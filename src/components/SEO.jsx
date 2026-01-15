@@ -9,7 +9,9 @@ const SEO = ({
   image = 'https://cloudassetskita.com/uploads/cropped-cropped-logo-kc-192x192-1-192x192-c602be92.webp',
   url,  // Optional - will auto-detect from current route if not provided
   type = 'website',
-  structuredData = null
+  structuredData = null,
+  robots = 'index, follow',           // Per-page indexing control
+  preserveQueryParams = false,        // Preserve query params for paginated pages
 }) => {
   const siteTitle = 'Komikcast';
   const fullTitle = title.includes(siteTitle) ? title : `${title} - ${siteTitle}`;
@@ -18,22 +20,40 @@ const SEO = ({
   const baseUrl = 'https://s1.komikcast00.co.id';
   
   // Auto-detect URL from current route if not explicitly provided
-  const rawUrl = url || `${baseUrl}${location.pathname}`;
+  let canonicalUrl = url || `${baseUrl}${location.pathname}`;
   
-  // Ensure canonical URL is absolute, HTTPS, and clean (no query/hash)
-  let canonicalUrl = rawUrl.startsWith('http') ? rawUrl : `${baseUrl}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`;
+  // Handle canonical URL construction
+  if (!canonicalUrl.startsWith('http')) {
+    canonicalUrl = `${baseUrl}${canonicalUrl.startsWith('/') ? '' : '/'}${canonicalUrl}`;
+  }
   
-  // Strip query parameters and hash fragments from canonical URL
-  try {
-    const urlObj = new URL(canonicalUrl);
-    canonicalUrl = `${urlObj.origin}${urlObj.pathname}`;
-  } catch {
-    // Fallback if URL parsing fails
-    canonicalUrl = canonicalUrl.split('?')[0].split('#')[0];
+  // Preserve specific SEO-relevant query params for paginated/filtered pages
+  if (preserveQueryParams && location.search) {
+    const params = new URLSearchParams(location.search);
+    const page = params.get('page');
+    const genre = params.get('genre');
+    
+    // Only add page param if it's greater than 1
+    if (page && parseInt(page, 10) > 1) {
+      canonicalUrl = `${canonicalUrl}?page=${page}`;
+    } else if (genre) {
+      canonicalUrl = `${canonicalUrl}?genre=${encodeURIComponent(genre)}`;
+    }
+  } else if (!preserveQueryParams) {
+    // Strip query parameters and hash fragments for non-paginated pages
+    try {
+      const urlObj = new URL(canonicalUrl);
+      canonicalUrl = `${urlObj.origin}${urlObj.pathname}`;
+    } catch {
+      canonicalUrl = canonicalUrl.split('?')[0].split('#')[0];
+    }
   }
 
   return (
     <Helmet>
+      {/* Robots directive for indexing control */}
+      <meta name="robots" content={robots} />
+      
       {/* Primary Meta Tags */}
       <title>{fullTitle}</title>
       <meta name="title" content={fullTitle} />
@@ -73,3 +93,4 @@ const SEO = ({
 };
 
 export default SEO;
+

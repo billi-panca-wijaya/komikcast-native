@@ -248,11 +248,8 @@ const CardUnlimitedComic = () => {
                 <div className="flex-1">
                     {sortedComics.length === 0 && (searchQuery || activeGenre) ? (
                         <div className="flex flex-col items-center justify-center py-16">
-                            <svg className="w-20 h-20 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <p className="text-gray-500 dark:text-gray-400 text-lg text-center">
-                                Tidak ada komik ditemukan untuk filter ini
+                            <p className="text-gray-500 dark:text-gray-400 text-lg font-medium text-center">
+                                Manga tidak ditemukan
                             </p>
                             <button
                                 onClick={() => { setSearchQuery(''); handleGenreClick(''); }}

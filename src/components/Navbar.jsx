@@ -162,7 +162,7 @@ const Navbar = () => {
                                         </button>
 
                                         {/* Search Results Dropdown */}
-                                        {(searchResults.length > 0 || loading) && (
+                                        {(searchQuery && (searchResults.length > 0 || loading || searchQuery.length > 2)) && (
                                             <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                                                 {loading ? (
                                                     <div className="p-4 text-center text-gray-500">
@@ -171,7 +171,7 @@ const Navbar = () => {
                                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                         </svg>
                                                     </div>
-                                                ) : (
+                                                ) : searchResults.length > 0 ? (
                                                     searchResults.map((comic, index) => (
                                                         <div
                                                             key={index}
@@ -190,6 +190,10 @@ const Navbar = () => {
                                                             </div>
                                                         </div>
                                                     ))
+                                                ) : (
+                                                    <div className="p-4 text-center text-gray-500 dark:text-gray-400 font-medium">
+                                                        Manga tidak ditemukan
+                                                    </div>
                                                 )}
                                             </div>
                                         )}

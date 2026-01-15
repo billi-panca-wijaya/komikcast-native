@@ -26,7 +26,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
         dynamicRoutes: allRoutes,
         exclude: excludedRoutes,
         changefreq: 'daily',
-        priority: 0.7,
+        priority: 0.8,
         lastmod: new Date(),
         readable: true,
         robots: [
@@ -34,6 +34,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
           { userAgent: '*', disallow: '/api/' },
           { userAgent: '*', disallow: '/history' },
           { userAgent: '*', disallow: '/statistics' },
+          { userAgent: '*', disallow: '/google9a67ae197255e3b1' },
         ],
       }),
     ],
