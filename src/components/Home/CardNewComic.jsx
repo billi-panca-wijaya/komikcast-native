@@ -4,14 +4,42 @@ import { useNavigate } from 'react-router-dom'
 import SkeletonLoader from '../SkeletonLoader'
 import GenreList from '../GenreList'
 
-const CardNewComic = ({ currentPage, setCurrentPage, initialGenre = '' }) => {
+// Genre value mapping (API uses lowercase slugs)
+const GENRE_SLUG_MAP = {
+    'action': 'action',
+    'adventure': 'adventure',
+    'comedy': 'comedy',
+    'drama': 'drama',
+    'ecchi': 'ecchi',
+    'fantasy': 'fantasy',
+    'harem': 'harem',
+    'historical': 'historical',
+    'horror': 'horror',
+    'isekai': 'isekai',
+    'martial arts': 'martial-arts',
+    'mecha': 'mecha',
+    'mystery': 'mystery',
+    'psychological': 'psychological',
+    'romance': 'romance',
+    'school life': 'school-life',
+    'sci-fi': 'sci-fi',
+    'seinen': 'seinen',
+    'shoujo': 'shoujo',
+    'shounen': 'shounen',
+    'slice of life': 'slice-of-life',
+    'sports': 'sports',
+    'supernatural': 'supernatural',
+    'thriller': 'thriller',
+}
+
+const CardNewComic = ({ currentPage = 1, onPageChange, initialGenre = '' }) => {
     const [comics, setComics] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [hasNextPage, setHasNextPage] = useState(true)
     const [searchQuery, setSearchQuery] = useState('')
     const [activeGenre, setActiveGenre] = useState(initialGenre)
-    const [sortOrder, setSortOrder] = useState('default') // default, a-z, z-a, newest
+    const [sortOrder, setSortOrder] = useState('default')
     const [hoveredSidebar, setHoveredSidebar] = useState(null)
 
     const navigate = useNavigate()
@@ -27,62 +55,56 @@ const CardNewComic = ({ currentPage, setCurrentPage, initialGenre = '' }) => {
         window.scrollTo(0, 0); 
         
         try {
-            let pagesToFetch = [];
-            const pagesPerLoad = 8; // Load more pages for unlimited collection
-
-            if (currentPage === 1) {
-                for (let i = 1; i <= pagesPerLoad; i++) {
-                    pagesToFetch.push(i);
-                }
-            } else {
-                const startPage = ((currentPage - 1) * pagesPerLoad) + 1;
-                for (let i = 0; i < pagesPerLoad; i++) {
-                    pagesToFetch.push(startPage + i);
-                }
-            }
-            const fetchPromises = pagesToFetch.map(page =>
-                axios.get(`https://www.sankavollerei.com/comic/pustaka/${page}`)
-                    .catch(() => ({ data: { results: [] } }))
-            );
-
-            const responses = await Promise.all(fetchPromises);
-
-            let allRawComics = [];
-            let anyPageHasData = false;
-
-            for (const response of responses) {
-                const rawComics = response.data.results || [];
-                if (rawComics.length > 0) {
-                    anyPageHasData = true;
-                    allRawComics.push(...rawComics);
-                }
-            }
+            // Build API URL with genre and page params
+            let apiUrl = `https://www.sankavollerei.com/comic/browse?page=${currentPage}`
             
-            setHasNextPage(anyPageHasData);
+            // Add genre filter if active
+            if (activeGenre) {
+                const genreSlug = GENRE_SLUG_MAP[activeGenre.toLowerCase()] || activeGenre.toLowerCase().replace(/\s+/g, '-')
+                apiUrl += `&genre=${genreSlug}`
+            }
 
-            const filteredComics = allRawComics.filter(item => 
+            const response = await axios.get(apiUrl)
+            
+            const rawComics = response.data.comics || []
+            const pagination = response.data.pagination || {}
+            
+            // Check if there are more pages
+            setHasNextPage(pagination.has_more !== false && rawComics.length > 0);
+
+            // Filter out APK and download items
+            const filteredComics = rawComics.filter(item => 
                 !item.title.toLowerCase().includes('apk') && 
-                (item.latestChapter && !item.latestChapter.title.toLowerCase().includes('download'))
+                !item.chapter.toLowerCase().includes('download')
             );
 
             const processedComics = filteredComics.map(comic => {
                 const slug = comic.title
                     .toLowerCase()
                     .replace(/[^a-z0-9]+/g, '-')  
-                    .replace(/^-+|-+$/g, '');  
-                const chapterNumber = comic.latestChapter?.title.split(' ').pop() || 'N/A';
+                    .replace(/^-+|-+$/g, '');
+                
+                const chapterMatch = comic.chapter.match(/\d+/);
+                const chapterNumber = chapterMatch ? chapterMatch[0] : comic.chapter;
+                
+                // Fix image URL if it's relative
+                let imageUrl = comic.image
+                if (imageUrl && imageUrl.startsWith('/')) {
+                    imageUrl = 'https://via.placeholder.com/300x450?text=Comic+Cover'
+                }
+                
                 return {
                     title: comic.title,
-                    image: comic.thumbnail,
+                    image: imageUrl || 'https://via.placeholder.com/300x450?text=Comic+Cover',
                     chapter: chapterNumber, 
                     source: comic.type || 'N/A',
-                    popularity: comic.genre || 'N/A',
-                    processedLink: comic.detailUrl.replace('/detail-komik/', ''),
+                    popularity: activeGenre || 'N/A',
+                    processedLink: comic.link.replace('/manga/', '').replace(/^\//, ''),
                     slug: slug
                 }
             })
 
-            setComics(processedComics.slice(0, 40));
+            setComics(processedComics);
 
         } catch (err) {
             if (err.response && err.response.status === 404) {
@@ -90,24 +112,26 @@ const CardNewComic = ({ currentPage, setCurrentPage, initialGenre = '' }) => {
                 if (currentPage > 1) setComics([]); 
             } else {
                 setError(err)
-                console.error("Error fetching pustaka comics:", err)
+                console.error("Error fetching browse comics:", err)
             }
         } finally {
             setLoading(false)
         }
-    }, [currentPage])
+    }, [currentPage, activeGenre])
 
     useEffect(() => {
         fetchComics()
     }, [fetchComics])
 
     const handleNextPage = () => {
-        setCurrentPage(prevPage => prevPage + 1);
+        if (onPageChange) {
+            onPageChange(currentPage + 1);
+        }
     }
     
     const handlePrevPage = () => {
-        setCurrentPage(prevPage => (prevPage > 1 ? prevPage - 1 : 1));
-        if (currentPage > 1) {
+        if (currentPage > 1 && onPageChange) {
+            onPageChange(currentPage - 1);
             setHasNextPage(true); 
         }
     }
@@ -123,22 +147,18 @@ const CardNewComic = ({ currentPage, setCurrentPage, initialGenre = '' }) => {
 
     const handleGenreClick = (genre) => {
         setActiveGenre(genre)
-        // Update URL with genre
+        // Update URL with genre, reset to page 1
         if (genre) {
-            navigate(`/pustaka?genre=${encodeURIComponent(genre)}`, { replace: true })
+            navigate(`/pustaka?genre=${encodeURIComponent(genre)}&page=1`, { replace: true })
         } else {
-            navigate('/pustaka', { replace: true })
+            navigate('/pustaka?page=1', { replace: true })
         }
     }
 
-    // Filter comics based on search query and genre
+    // Filter comics based on search query (client-side search within loaded comics)
     const filteredComics = comics.filter(comic => {
         const matchesSearch = comic.title.toLowerCase().includes(searchQuery.toLowerCase())
-        const matchesGenre = !activeGenre || 
-            comic.title.toLowerCase().includes(activeGenre.toLowerCase()) || 
-            (comic.popularity && comic.popularity.toLowerCase().includes(activeGenre.toLowerCase())) ||
-            (comic.source && comic.source.toLowerCase().includes(activeGenre.toLowerCase()))
-        return matchesSearch && matchesGenre
+        return matchesSearch
     })
 
     // Sort comics based on sortOrder
@@ -158,7 +178,7 @@ const CardNewComic = ({ currentPage, setCurrentPage, initialGenre = '' }) => {
     // Get sidebar comics
     const sidebarComics = sortedComics.slice(0, 10)
 
-    if (loading && currentPage === 1 && comics.length === 0) {
+    if (loading && comics.length === 0) {
         return (
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="flex items-center gap-3 mb-8">
@@ -188,6 +208,7 @@ const CardNewComic = ({ currentPage, setCurrentPage, initialGenre = '' }) => {
             </div>
         )
     }
+
     if (!loading && !error && comics.length === 0) {
         return (
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -213,22 +234,12 @@ const CardNewComic = ({ currentPage, setCurrentPage, initialGenre = '' }) => {
                         <button
                             onClick={handlePrevPage}
                             disabled={currentPage === 1 || loading}
-                            className="group relative px-8 py-3 bg-gradient-to-r from-blue-700 to-teal-500 text-white rounded-xl font-semibold hover:from-indigo-500 hover:to-purple-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-indigo-600 disabled:hover:to-purple-600 shadow-lg hover:shadow-teal-500/50 flex items-center gap-2"
+                            className="group relative px-8 py-3 bg-gradient-to-r from-blue-700 to-teal-500 text-white rounded-xl font-semibold hover:from-indigo-500 hover:to-purple-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-teal-500/50 flex items-center gap-2"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                             </svg>
                             Sebelumnya
-                        </button>
-                        <button
-                            onClick={handleNextPage}
-                            disabled={true}
-                            className="px-8 py-3 bg-gray-700 text-white rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center gap-2"
-                        >
-                            Berikutnya
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
                         </button>
                     </div>
                 </div>
@@ -336,7 +347,7 @@ const CardNewComic = ({ currentPage, setCurrentPage, initialGenre = '' }) => {
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
                                 {sortedComics.map((comic, index) => (
                                     <div
-                                        key={`${comic.slug}-${index}`}
+                                        key={`${comic.slug}-${currentPage}-${index}`}
                                         className="group relative bg-white/80 dark:bg-gradient-to-b dark:from-gray-800 dark:to-gray-900 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-300 dark:border-gray-700 hover:border-teal-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-500/20 hover:-translate-y-2 animate-fadeIn"
                                         style={{ animationDelay: `${index * 30}ms` }}
                                     >
@@ -358,7 +369,7 @@ const CardNewComic = ({ currentPage, setCurrentPage, initialGenre = '' }) => {
                                                 Ch. {comic.chapter}
                                             </div>
                                             {/* NEW badge for first 10 */}
-                                            {index < 10 && (
+                                            {index < 10 && currentPage === 1 && !activeGenre && (
                                                 <div className="absolute top-2 left-2 bg-gradient-to-r from-teal-600 to-teal-400 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
                                                     NEW
                                                 </div>
@@ -464,7 +475,6 @@ const CardNewComic = ({ currentPage, setCurrentPage, initialGenre = '' }) => {
                                     </div>
                                 </div>
                                 <div className="absolute top-2 right-4 w-2 h-2 bg-cyan-400 rounded-full animate-ping"></div>
-                                <div className="absolute bottom-4 right-8 w-1.5 h-1.5 bg-blue-400 rounded-full animate-ping" style={{animationDelay: '0.5s'}}></div>
                             </div>
 
                             {/* Sidebar Comic List */}
@@ -493,6 +503,9 @@ const CardNewComic = ({ currentPage, setCurrentPage, initialGenre = '' }) => {
                                                 alt={comic.title}
                                                 className={`w-full h-full object-cover transition-transform duration-500 ${hoveredSidebar === index ? 'scale-110' : ''}`}
                                                 loading="lazy"
+                                                onError={(e) => {
+                                                    e.target.src = 'https://via.placeholder.com/300x450?text=Comic'
+                                                }}
                                             />
                                         </div>
 
@@ -521,9 +534,9 @@ const CardNewComic = ({ currentPage, setCurrentPage, initialGenre = '' }) => {
                                     </div>
                                     <div className="text-center p-3 rounded-xl bg-white/50 dark:bg-gray-700/50 hover:scale-105 transition-transform duration-300 cursor-default">
                                         <div className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
-                                            ∞
+                                            {currentPage}
                                         </div>
-                                        <div className="text-xs text-gray-500 dark:text-gray-400">Koleksi</div>
+                                        <div className="text-xs text-gray-500 dark:text-gray-400">Halaman</div>
                                     </div>
                                 </div>
                             </div>

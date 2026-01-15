@@ -24,7 +24,7 @@ Platform baca komik/manhwa online modern, gratis tanpa iklan. Dibangun dengan Re
 
 ```sh
 # Clone repository
-git clone https://github.com/YourUsername/komikcast.git
+git clone https://github.com/bilynatalia/komikcast.git
 cd komikcast
 
 # Install dependencies

@@ -19,6 +19,7 @@ import Contact from './Pages/Contact'
 import EditorialGuidelines from './Pages/EditorialGuidelines'
 import DMCA from './Pages/DMCA'
 import FAQ from './Pages/FAQ'
+import GenreRedirect from './Pages/GenreRedirect'
 import useDevToolsProtection from './hooks/useDevToolsProtection'
 import BanScreen from './components/BanScreen'
 import WarningToast from './components/WarningToast'
@@ -57,6 +58,7 @@ function AppContent() {
           <Route path="/pedoman-editorial" element={<EditorialGuidelines />} />
           <Route path="/dmca" element={<DMCA />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/genre/:name" element={<GenreRedirect />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

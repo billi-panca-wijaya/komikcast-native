@@ -1,38 +1,35 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import SkeletonLoader from '../components/SkeletonLoader'
 import SEO from '../components/SEO'
 import GenreList from '../components/GenreList'
 
+const COMICS_PER_PAGE = 15
+
 const TrendingPage = () => {
-    const [comics, setComics] = useState([])
+    const [allComics, setAllComics] = useState([]) // Store all fetched comics
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [searchQuery, setSearchQuery] = useState('')
     const [hoveredSidebar, setHoveredSidebar] = useState(null)
 
+    // URL-based pagination for SEO and back navigation support
+    const [searchParams, setSearchParams] = useSearchParams()
+    const currentPage = parseInt(searchParams.get('page') || '1', 10)
+
     const navigate = useNavigate()
 
-    const fetchComics = async () => {
+    // Fetch ALL trending comics once from the API (no server pagination)
+    const fetchAllTrendingComics = useCallback(async () => {
         try {
-            // Fetch multiple pages for more comics
-            const pages = [1, 2, 3, 4, 5]
-            const responses = await Promise.all(
-                pages.map(page => 
-                    axios.get(`https://www.sankavollerei.com/comic/trending?page=${page}`)
-                        .catch(() => ({ data: { trending: [] } }))
-                )
-            )
-
-            const allRawComics = responses.flatMap(response => response.data.trending || [])
-
-            // Remove duplicates
-            const uniqueComics = allRawComics.filter((comic, index, self) =>
-                index === self.findIndex(c => c.title === comic.title)
-            )
-
-            const filteredComics = uniqueComics.filter(item => 
+            setLoading(true)
+            const response = await axios.get('https://www.sankavollerei.com/comic/trending')
+            
+            const rawComics = response.data.trending || []
+            
+            // Filter out APK and download items
+            const filteredComics = rawComics.filter(item => 
                 !item.title.toLowerCase().includes('apk') && 
                 !item.chapter.toLowerCase().includes('download')
             )
@@ -45,7 +42,7 @@ const TrendingPage = () => {
 
                 const link = comic.link.replace('/manga/', '/').replace('/plus/', '/');
 
-                const imageUrl = comic.image && !comic.image.includes('lazy.jpg')
+                const imageUrl = comic.image && !comic.image.includes('lazy.jpg') && !comic.image.startsWith('/')
                     ? comic.image
                     : 'https://via.placeholder.com/300x450?text=Trending+Cover';
                 
@@ -59,7 +56,7 @@ const TrendingPage = () => {
                 }
             })
 
-            setComics(processedComics.slice(0, 15))
+            setAllComics(processedComics)
             setLoading(false)
 
         } catch (err) {
@@ -67,11 +64,30 @@ const TrendingPage = () => {
             setLoading(false)
             console.error("Error fetching trending comics:", err)
         }
-    }
+    }, [])
 
     useEffect(() => {
-        fetchComics()
-    }, [])
+        fetchAllTrendingComics()
+    }, [fetchAllTrendingComics])
+
+    // Client-side pagination: slice comics based on current page
+    const paginatedComics = useMemo(() => {
+        const startIndex = (currentPage - 1) * COMICS_PER_PAGE
+        const endIndex = startIndex + COMICS_PER_PAGE
+        return allComics.slice(startIndex, endIndex)
+    }, [allComics, currentPage])
+
+    // Calculate total pages
+    const totalPages = Math.ceil(allComics.length / COMICS_PER_PAGE)
+    const hasMorePages = currentPage < totalPages
+
+    // Handle page change - update URL
+    const handlePageChange = (newPage) => {
+        if (newPage < 1 || newPage > totalPages) return
+
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        setSearchParams({ page: newPage.toString() })
+    }
 
     const handleComicDetail = (comic) => {
         navigate(`/detail-comic/${comic.slug}`, { 
@@ -88,23 +104,75 @@ const TrendingPage = () => {
         })
     }
 
-
-    // Filter comics based on search
-    const filteredComics = comics.filter(comic =>
+    // Filter comics based on search (from current page)
+    const filteredComics = paginatedComics.filter(comic =>
         comic.title.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
     // Sidebar comics
-    const sidebarComics = filteredComics.slice(0, 10)
+    const sidebarComics = searchQuery ? filteredComics.slice(0, 10) : paginatedComics.slice(0, 10)
+
+    // Pagination Button Component
+    const PaginationButton = ({ direction, onClick, disabled }) => {
+        const isNext = direction === 'next'
+        
+        return (
+            <button
+                onClick={onClick}
+                disabled={disabled || loading}
+                className={`
+                    group relative flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm
+                    transition-all duration-300 ease-out
+                    ${disabled || loading
+                        ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed opacity-50'
+                        : 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg hover:shadow-xl hover:shadow-orange-500/30 hover:scale-105 active:scale-95'
+                    }
+                `}
+            >
+                {!disabled && !loading && (
+                    <span className="absolute inset-0 rounded-xl overflow-hidden">
+                        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                    </span>
+                )}
+                
+                {!isNext && (
+                    <svg 
+                        className={`w-5 h-5 transition-transform duration-300 ${!disabled && !loading ? 'group-hover:-translate-x-1' : ''}`}
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                )}
+                
+                <span className="relative z-10">
+                    {isNext ? 'Selanjutnya' : 'Sebelumnya'}
+                </span>
+                
+                {isNext && (
+                    <svg 
+                        className={`w-5 h-5 transition-transform duration-300 ${!disabled && !loading ? 'group-hover:translate-x-1' : ''}`}
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                )}
+            </button>
+        )
+    }
 
     if (loading) {
         return (
             <>
                 <SEO
-                    title="Komik Paling Populer & Trending Minggu Ini - Komikcast"
-                    description="Temukan komik manga, manhwa, dan manhua yang sedang viral dan paling banyak dibaca minggu ini. Jangan ketinggalan judul-judul hits pilihan pembaca."
+                    title={currentPage > 1 ? `Komik Trending Halaman ${currentPage} - Komikcast` : "Komik Paling Populer & Trending Minggu Ini - Komikcast"}
+                    description="Temukan komik manga, manhwa, dan manhua yang sedang viral dan paling banyak dibaca minggu ini."
                     keywords="komik trending, manga populer, manhwa hits, komik viral, top komik"
                     url="https://s1.komikcast00.co.id/trending"
+                    preserveQueryParams={true}
                 />
                 <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#121212] dark:to-[#1a1a1a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
                     <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -122,7 +190,7 @@ const TrendingPage = () => {
                                 </div>
                                 <div className="flex-1 h-px bg-gradient-to-r from-gray-300 dark:from-gray-700 to-transparent"></div>
                             </div>
-                            <SkeletonLoader count={18} type="card" />
+                            <SkeletonLoader count={COMICS_PER_PAGE} type="card" />
                         </div>
                     </div>
                 </div>
@@ -147,10 +215,12 @@ const TrendingPage = () => {
     return (
         <>
             <SEO
-                title="Komik Trending - Komikcast"
-                description="Komikcast menghadirkan komik trending dan populer. Baca komik terbaik gratis tanpa iklan."
+                title={currentPage > 1 ? `Komik Trending Halaman ${currentPage} - Komikcast` : "Komik Trending - Komikcast"}
+                description={currentPage > 1 ? `Daftar komik trending halaman ${currentPage}. Baca manga, manhwa, dan manhua populer gratis.` : "Komikcast menghadirkan komik trending dan populer. Baca komik terbaik gratis tanpa iklan."}
                 keywords="komik trending, komik populer, komikcast, komik viral"
                 url="https://s1.komikcast00.co.id/trending"
+                preserveQueryParams={true}
+                robots={currentPage > 10 ? "noindex, follow" : "index, follow"}
             />
             <div className="relative bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-[#0a0a0a] dark:via-[#121212] dark:to-[#1a1a1a] min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
                 {/* Background decorative elements */}
@@ -175,7 +245,7 @@ const TrendingPage = () => {
                                 <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd"/>
                             </svg>
                             <span className="px-3 py-1 bg-orange-500/20 text-orange-400 text-sm rounded-full">
-                                🔥 {comics.length} Hot
+                                🔥 Halaman {currentPage} / {totalPages}
                             </span>
                             <div className="flex-1 h-px bg-gradient-to-r from-gray-300 dark:from-gray-700 to-transparent"></div>
                         </div>
@@ -219,12 +289,12 @@ const TrendingPage = () => {
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
                                     {filteredComics.map((comic, index) => (
                                         <div
-                                            key={comic.title}
+                                            key={`${comic.title}-${currentPage}-${index}`}
                                             className="group relative bg-white/80 dark:bg-gradient-to-b dark:from-gray-800 dark:to-gray-900 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-300 dark:border-gray-700 hover:border-orange-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/20 hover:-translate-y-2 animate-fadeIn"
                                             style={{ animationDelay: `${index * 30}ms` }}
                                         >
                                             {/* Trending Badge */}
-                                            {index < 3 && (
+                                            {index < 3 && currentPage === 1 && (
                                                 <div className="absolute top-0 left-0 z-10">
                                                     <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-br-xl rounded-tl-xl text-xs font-bold shadow-lg flex items-center gap-1">
                                                         <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -271,7 +341,7 @@ const TrendingPage = () => {
                                                 </h3>
                                                 <button
                                                     onClick={() => handleComicDetail(comic)}
-                                                    className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-2 rounded-lg hover:from-orange-500 hover:to-red-500 transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-orange-500/50 flex items-center justify-center gap-2"
+                                                    className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-orange-500/50 flex items-center justify-center gap-2"
                                                 >
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -282,6 +352,70 @@ const TrendingPage = () => {
                                         </div>
                                     ))}
                                 </div>
+
+                                {/* Pagination Controls */}
+                                {!searchQuery && totalPages > 1 && (
+                                    <div className="mt-10 flex flex-col items-center gap-4">
+                                        {/* Page Indicator */}
+                                        <div className="flex items-center gap-3 px-6 py-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg">
+                                            <span className="text-sm text-gray-500 dark:text-gray-400">Halaman</span>
+                                            <span className="px-4 py-1.5 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-lg text-lg min-w-[3rem] text-center">
+                                                {currentPage}
+                                            </span>
+                                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                                                dari {totalPages} • {paginatedComics.length} komik
+                                            </span>
+                                        </div>
+
+                                        {/* Navigation Buttons */}
+                                        <div className="flex items-center gap-4">
+                                            <PaginationButton 
+                                                direction="prev"
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                disabled={currentPage === 1}
+                                            />
+                                            
+                                            {/* Quick page numbers for desktop */}
+                                            <div className="hidden md:flex items-center gap-2">
+                                                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                                    let pageNum
+                                                    if (totalPages <= 5) {
+                                                        pageNum = i + 1
+                                                    } else if (currentPage <= 3) {
+                                                        pageNum = i + 1
+                                                    } else if (currentPage >= totalPages - 2) {
+                                                        pageNum = totalPages - 4 + i
+                                                    } else {
+                                                        pageNum = currentPage - 2 + i
+                                                    }
+                                                    
+                                                    return (
+                                                        <button
+                                                            key={pageNum}
+                                                            onClick={() => handlePageChange(pageNum)}
+                                                            className={`
+                                                                w-10 h-10 rounded-lg font-semibold text-sm transition-all duration-300
+                                                                ${pageNum === currentPage 
+                                                                    ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg scale-110' 
+                                                                    : 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-orange-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+                                                                }
+                                                                hover:scale-105
+                                                            `}
+                                                        >
+                                                            {pageNum}
+                                                        </button>
+                                                    )
+                                                })}
+                                            </div>
+
+                                            <PaginationButton 
+                                                direction="next"
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                disabled={!hasMorePages}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* No results */}
                                 {filteredComics.length === 0 && searchQuery && (
@@ -312,20 +446,19 @@ const TrendingPage = () => {
                                                 </div>
                                                 <div>
                                                     <h3 className="text-lg font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
-                                                        Top 10 Trending
+                                                        Top Trending
                                                     </h3>
-                                                    <p className="text-sm text-gray-400">Paling populer saat ini</p>
+                                                    <p className="text-sm text-gray-400">Halaman {currentPage}</p>
                                                 </div>
                                             </div>
                                             <div className="absolute top-2 right-4 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
-                                            <div className="absolute bottom-4 right-8 w-1.5 h-1.5 bg-orange-400 rounded-full animate-ping" style={{animationDelay: '0.5s'}}></div>
                                         </div>
 
                                         {/* Sidebar List */}
                                         <div className="space-y-3">
-                                            {sidebarComics.map((comic, index) => (
+                                            {sidebarComics.slice(0, 5).map((comic, index) => (
                                                 <div
-                                                    key={`sidebar-${comic.title}`}
+                                                    key={`sidebar-${comic.title}-${index}`}
                                                     className={`group relative flex gap-4 p-3 rounded-xl border transition-all duration-500 cursor-pointer overflow-hidden ${
                                                         hoveredSidebar === index 
                                                             ? 'bg-gradient-to-r from-orange-600/20 to-red-600/20 border-orange-500/50 scale-105 shadow-xl shadow-orange-500/20' 
@@ -347,6 +480,9 @@ const TrendingPage = () => {
                                                             alt={comic.title}
                                                             className={`w-full h-full object-cover transition-transform duration-500 ${hoveredSidebar === index ? 'scale-110' : ''}`}
                                                             loading="lazy"
+                                                            onError={(e) => {
+                                                                e.target.src = 'https://via.placeholder.com/300x450?text=Comic'
+                                                            }}
                                                         />
                                                     </div>
 
@@ -356,11 +492,9 @@ const TrendingPage = () => {
                                                         }`}>
                                                             {comic.title}
                                                         </h4>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="px-2 py-0.5 bg-orange-500/20 text-orange-400 text-xs rounded-full flex items-center gap-1">
-                                                                🔥 {comic.popularity}
-                                                            </span>
-                                                        </div>
+                                                        <span className="px-2 py-0.5 bg-orange-500/20 text-orange-400 text-xs rounded-full">
+                                                            🔥 {comic.popularity}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             ))}
@@ -371,20 +505,20 @@ const TrendingPage = () => {
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div className="text-center p-3 rounded-xl bg-white/50 dark:bg-gray-700/50 hover:scale-105 transition-transform duration-300">
                                                     <div className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
-                                                        {comics.length}
+                                                        {allComics.length}
                                                     </div>
                                                     <div className="text-xs text-gray-500 dark:text-gray-400">Total Hot</div>
                                                 </div>
                                                 <div className="text-center p-3 rounded-xl bg-white/50 dark:bg-gray-700/50 hover:scale-105 transition-transform duration-300">
-                                                    <div className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent animate-pulse">
-                                                        🔥
+                                                    <div className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                                                        {currentPage}/{totalPages}
                                                     </div>
-                                                    <div className="text-xs text-gray-500 dark:text-gray-400">Trending</div>
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400">Halaman</div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Genre List - Navigate to Pustaka */}
+                                        {/* Genre List */}
                                         <div className="mt-4">
                                             <GenreList navigateToAll={true} />
                                         </div>
