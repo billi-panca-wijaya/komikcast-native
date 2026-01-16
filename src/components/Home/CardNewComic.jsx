@@ -38,16 +38,12 @@ const CardNewComic = ({ currentPage = 1, onPageChange, initialGenre = '' }) => {
     const [error, setError] = useState(null)
     const [hasNextPage, setHasNextPage] = useState(true)
     const [searchQuery, setSearchQuery] = useState('')
-    const [activeGenre, setActiveGenre] = useState(initialGenre)
     const [sortOrder, setSortOrder] = useState('default')
     const [hoveredSidebar, setHoveredSidebar] = useState(null)
 
     const navigate = useNavigate()
 
-    // Update activeGenre when initialGenre changes
-    useEffect(() => {
-        setActiveGenre(initialGenre)
-    }, [initialGenre])
+    // Use initialGenre directly for API calls (comes from URL)
 
     const fetchComics = useCallback(async () => {
         setLoading(true);
@@ -58,9 +54,9 @@ const CardNewComic = ({ currentPage = 1, onPageChange, initialGenre = '' }) => {
             // Build API URL with genre and page params
             let apiUrl = `https://www.sankavollerei.com/comic/browse?page=${currentPage}`
             
-            // Add genre filter if active
-            if (activeGenre) {
-                const genreSlug = GENRE_SLUG_MAP[activeGenre.toLowerCase()] || activeGenre.toLowerCase().replace(/\s+/g, '-')
+            // Add genre filter if active (use initialGenre directly from props)
+            if (initialGenre) {
+                const genreSlug = GENRE_SLUG_MAP[initialGenre.toLowerCase()] || initialGenre.toLowerCase().replace(/\s+/g, '-')
                 apiUrl += `&genre=${genreSlug}`
             }
 
@@ -98,7 +94,7 @@ const CardNewComic = ({ currentPage = 1, onPageChange, initialGenre = '' }) => {
                     image: imageUrl || 'https://via.placeholder.com/300x450?text=Comic+Cover',
                     chapter: chapterNumber, 
                     source: comic.type || 'N/A',
-                    popularity: activeGenre || 'N/A',
+                    popularity: initialGenre || 'N/A',
                     processedLink: comic.link.replace('/manga/', '').replace(/^\//, ''),
                     slug: slug
                 }
@@ -117,8 +113,9 @@ const CardNewComic = ({ currentPage = 1, onPageChange, initialGenre = '' }) => {
         } finally {
             setLoading(false)
         }
-    }, [currentPage, activeGenre])
+    }, [currentPage, initialGenre])
 
+    // Refetch when page or genre changes
     useEffect(() => {
         fetchComics()
     }, [fetchComics])
@@ -146,12 +143,11 @@ const CardNewComic = ({ currentPage = 1, onPageChange, initialGenre = '' }) => {
     }
 
     const handleGenreClick = (genre) => {
-        setActiveGenre(genre)
         // Update URL with genre, reset to page 1
         if (genre) {
-            navigate(`/pustaka?genre=${encodeURIComponent(genre)}&page=1`, { replace: true })
+            navigate(`/pustaka?genre=${encodeURIComponent(genre)}&page=1`, { replace: false })
         } else {
-            navigate('/pustaka?page=1', { replace: true })
+            navigate('/pustaka?page=1', { replace: false })
         }
     }
 
@@ -185,7 +181,7 @@ const CardNewComic = ({ currentPage = 1, onPageChange, initialGenre = '' }) => {
                     <div className="flex items-center gap-2">
                         <div className="w-1 h-8 bg-gradient-to-b from-blue-700 to-teal-500 rounded-full"></div>
                         <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-teal-500 bg-clip-text text-transparent">
-                            {activeGenre ? `Komik ${activeGenre}` : "Pustaka Komik Terbaru"}
+                            {initialGenre ? `Komik ${initialGenre}` : "Pustaka Komik Terbaru"}
                         </h2>
                     </div>
                     <div className="flex-1 h-px bg-gradient-to-r from-gray-300 dark:from-gray-700 to-transparent"></div>
@@ -254,7 +250,7 @@ const CardNewComic = ({ currentPage = 1, onPageChange, initialGenre = '' }) => {
                 <div className="flex items-center gap-2">
                     <div className="w-1 h-8 bg-gradient-to-b from-blue-700 to-teal-500 rounded-full animate-pulse"></div>
                     <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-teal-500 bg-clip-text text-transparent">
-                        {activeGenre ? `Komik ${activeGenre}` : (currentPage === 1 ? "Pustaka Komik Terbaru" : `Pustaka Komik (Halaman ${currentPage})`)}
+                        {initialGenre ? `Komik ${initialGenre}` : (currentPage === 1 ? "Pustaka Komik Terbaru" : `Pustaka Komik (Halaman ${currentPage})`)}
                     </h2>
                 </div>
                 <span className="px-3 py-1 bg-blue-500/20 text-teal-400 text-sm rounded-full">
@@ -308,7 +304,7 @@ const CardNewComic = ({ currentPage = 1, onPageChange, initialGenre = '' }) => {
             </div>
 
             {/* Active Filters */}
-            {(searchQuery || activeGenre) && (
+            {(searchQuery || initialGenre) && (
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <span className="text-sm text-gray-500">Filter aktif:</span>
                     {searchQuery && (
@@ -317,9 +313,9 @@ const CardNewComic = ({ currentPage = 1, onPageChange, initialGenre = '' }) => {
                             <button onClick={() => setSearchQuery('')} className="hover:text-blue-300">×</button>
                         </span>
                     )}
-                    {activeGenre && (
+                    {initialGenre && (
                         <span className="px-3 py-1 bg-purple-500/20 text-purple-400 text-sm rounded-full flex items-center gap-1">
-                            Genre: {activeGenre}
+                            Genre: {initialGenre}
                             <button onClick={() => handleGenreClick('')} className="hover:text-purple-300">×</button>
                         </span>
                     )}
@@ -369,7 +365,7 @@ const CardNewComic = ({ currentPage = 1, onPageChange, initialGenre = '' }) => {
                                                 Ch. {comic.chapter}
                                             </div>
                                             {/* NEW badge for first 10 */}
-                                            {index < 10 && currentPage === 1 && !activeGenre && (
+                                            {index < 10 && currentPage === 1 && !initialGenre && (
                                                 <div className="absolute top-2 left-2 bg-gradient-to-r from-teal-600 to-teal-400 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
                                                     NEW
                                                 </div>
@@ -406,7 +402,7 @@ const CardNewComic = ({ currentPage = 1, onPageChange, initialGenre = '' }) => {
                             </div>
 
                             {/* No results message */}
-                            {sortedComics.length === 0 && (searchQuery || activeGenre) && (
+                            {sortedComics.length === 0 && (searchQuery || initialGenre) && (
                                 <div className="flex flex-col items-center justify-center py-16">
                                     <p className="text-gray-500 dark:text-gray-400 text-lg font-medium text-center">
                                         Manga tidak ditemukan
@@ -544,7 +540,7 @@ const CardNewComic = ({ currentPage = 1, onPageChange, initialGenre = '' }) => {
                             {/* Genre List */}
                             <GenreList 
                                 onGenreClick={handleGenreClick} 
-                                activeGenre={activeGenre} 
+                                activeGenre={initialGenre} 
                                 navigateToAll={false}
                             />
                         </div>
